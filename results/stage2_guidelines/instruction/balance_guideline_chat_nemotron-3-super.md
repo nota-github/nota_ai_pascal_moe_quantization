@@ -1,0 +1,5 @@
+1. Incorporate domain-specific technical terminology from computing, networking, or machine learning fields (e.g., "quantize", "SDR server", "Mixture-of-Experts", "LLM") to target sparsely activated experts.
+2. Avoid high-frequency conversational phrases such as greetings, weather comments, or routine activity descriptions (e.g., "Hello, how are you?", "Nice weather today") that activate frequently activated experts.
+3. Use precise technical descriptions with concrete details about specific processes, failures, or objectives rather than vague or general statements when discussing technical topics.
+4. Employ formal sentence structures typical of technical documentation and avoid contractions or colloquialisms prevalent in everyday conversation (e.g., use "it is" instead of "it's", avoid words like "guy" or "stuff").
+5. Include technical acronyms and abbreviations that are rare in general language corpora but common in specialized domains (e.g., MoE for Mixture-of-Experts, LLM for Large Language Model, SDR for Software-Defined Radio).

@@ -1,0 +1,23 @@
+# Generated outputs — large files, not tracked
+model/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Logs
+*.log
+
+# Editor
+.vscode/
+.idea/
+*.swp

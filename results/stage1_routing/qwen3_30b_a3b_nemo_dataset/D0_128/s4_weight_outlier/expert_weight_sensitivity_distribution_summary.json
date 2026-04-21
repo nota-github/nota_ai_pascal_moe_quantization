@@ -1,0 +1,928 @@
+{
+  "schema": "expert_balance.distribution_summary.step4.v1",
+  "script": "step4_weight_outlier_dist.py",
+  "model_display": "qwen3_30b_a3b",
+  "model_name": "/home/work/nota-data/ghlee/storage/base_model/qwen3_30b_a3b",
+  "group_size": 128,
+  "moe_layer_indices": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47
+  ],
+  "routing_jsonl": "/home/work/nota-data/ghlee/nemo_hack/expert_balance/save_dir/qwen3_30b_a3b_nemo_dataset/D0_128/s2_expert_count/token_routing.jsonl",
+  "routing_total_tokens": 208775,
+  "full_grid": {
+    "panel": "full_grid",
+    "n_bars": 6144,
+    "sort": "sensitivity ascending (left=low/robust, right=high/sensitive)",
+    "x_axis": "sorted_rank_percentile (0=left ... 100=right, matches bar plot)",
+    "y_axis": "quantization_sensitivity",
+    "percentile_step": 2.5,
+    "y_stats": {
+      "n_finite": 6144,
+      "min": 8.391304016113281,
+      "max": 307.20001220703125,
+      "mean": 26.928079414957512
+    },
+    "percentile_samples": [
+      {
+        "percentile_along_sorted_rank": 0.0,
+        "rank_index": 0,
+        "sensitivity_at_rank": 8.391304016113281
+      },
+      {
+        "percentile_along_sorted_rank": 2.5,
+        "rank_index": 154,
+        "sensitivity_at_rank": 10.612244606018066
+      },
+      {
+        "percentile_along_sorted_rank": 5.0,
+        "rank_index": 307,
+        "sensitivity_at_rank": 11.733333587646484
+      },
+      {
+        "percentile_along_sorted_rank": 7.5,
+        "rank_index": 461,
+        "sensitivity_at_rank": 12.564971923828125
+      },
+      {
+        "percentile_along_sorted_rank": 10.0,
+        "rank_index": 614,
+        "sensitivity_at_rank": 13.191489219665527
+      },
+      {
+        "percentile_along_sorted_rank": 12.5,
+        "rank_index": 768,
+        "sensitivity_at_rank": 13.815260887145996
+      },
+      {
+        "percentile_along_sorted_rank": 15.0,
+        "rank_index": 921,
+        "sensitivity_at_rank": 14.532110214233398
+      },
+      {
+        "percentile_along_sorted_rank": 17.5,
+        "rank_index": 1075,
+        "sensitivity_at_rank": 15.11111068725586
+      },
+      {
+        "percentile_along_sorted_rank": 20.0,
+        "rank_index": 1229,
+        "sensitivity_at_rank": 15.639098167419434
+      },
+      {
+        "percentile_along_sorted_rank": 22.5,
+        "rank_index": 1382,
+        "sensitivity_at_rank": 16.182857513427734
+      },
+      {
+        "percentile_along_sorted_rank": 25.0,
+        "rank_index": 1536,
+        "sensitivity_at_rank": 16.700000762939453
+      },
+      {
+        "percentile_along_sorted_rank": 27.5,
+        "rank_index": 1689,
+        "sensitivity_at_rank": 17.216373443603516
+      },
+      {
+        "percentile_along_sorted_rank": 30.0,
+        "rank_index": 1843,
+        "sensitivity_at_rank": 17.855072021484375
+      },
+      {
+        "percentile_along_sorted_rank": 32.5,
+        "rank_index": 1996,
+        "sensitivity_at_rank": 18.370370864868164
+      },
+      {
+        "percentile_along_sorted_rank": 35.0,
+        "rank_index": 2150,
+        "sensitivity_at_rank": 18.940540313720703
+      },
+      {
+        "percentile_along_sorted_rank": 37.5,
+        "rank_index": 2304,
+        "sensitivity_at_rank": 19.520000457763672
+      },
+      {
+        "percentile_along_sorted_rank": 40.0,
+        "rank_index": 2457,
+        "sensitivity_at_rank": 20.086956024169922
+      },
+      {
+        "percentile_along_sorted_rank": 42.5,
+        "rank_index": 2611,
+        "sensitivity_at_rank": 20.685083389282227
+      },
+      {
+        "percentile_along_sorted_rank": 45.0,
+        "rank_index": 2764,
+        "sensitivity_at_rank": 21.36842155456543
+      },
+      {
+        "percentile_along_sorted_rank": 47.5,
+        "rank_index": 2918,
+        "sensitivity_at_rank": 22.037734985351562
+      },
+      {
+        "percentile_along_sorted_rank": 50.0,
+        "rank_index": 3072,
+        "sensitivity_at_rank": 22.717557907104492
+      },
+      {
+        "percentile_along_sorted_rank": 52.5,
+        "rank_index": 3225,
+        "sensitivity_at_rank": 23.399999618530273
+      },
+      {
+        "percentile_along_sorted_rank": 55.0,
+        "rank_index": 3379,
+        "sensitivity_at_rank": 24.086021423339844
+      },
+      {
+        "percentile_along_sorted_rank": 57.5,
+        "rank_index": 3532,
+        "sensitivity_at_rank": 24.83333396911621
+      },
+      {
+        "percentile_along_sorted_rank": 60.0,
+        "rank_index": 3686,
+        "sensitivity_at_rank": 25.671642303466797
+      },
+      {
+        "percentile_along_sorted_rank": 62.5,
+        "rank_index": 3839,
+        "sensitivity_at_rank": 26.409639358520508
+      },
+      {
+        "percentile_along_sorted_rank": 65.0,
+        "rank_index": 3993,
+        "sensitivity_at_rank": 27.397260665893555
+      },
+      {
+        "percentile_along_sorted_rank": 67.5,
+        "rank_index": 4147,
+        "sensitivity_at_rank": 28.41121482849121
+      },
+      {
+        "percentile_along_sorted_rank": 70.0,
+        "rank_index": 4300,
+        "sensitivity_at_rank": 29.43511390686035
+      },
+      {
+        "percentile_along_sorted_rank": 72.5,
+        "rank_index": 4454,
+        "sensitivity_at_rank": 30.708520889282227
+      },
+      {
+        "percentile_along_sorted_rank": 75.0,
+        "rank_index": 4607,
+        "sensitivity_at_rank": 32.0
+      },
+      {
+        "percentile_along_sorted_rank": 77.5,
+        "rank_index": 4761,
+        "sensitivity_at_rank": 33.497074127197266
+      },
+      {
+        "percentile_along_sorted_rank": 80.0,
+        "rank_index": 4914,
+        "sensitivity_at_rank": 35.0684928894043
+      },
+      {
+        "percentile_along_sorted_rank": 82.5,
+        "rank_index": 5068,
+        "sensitivity_at_rank": 36.82539749145508
+      },
+      {
+        "percentile_along_sorted_rank": 85.0,
+        "rank_index": 5222,
+        "sensitivity_at_rank": 38.869110107421875
+      },
+      {
+        "percentile_along_sorted_rank": 87.5,
+        "rank_index": 5375,
+        "sensitivity_at_rank": 41.4591178894043
+      },
+      {
+        "percentile_along_sorted_rank": 90.0,
+        "rank_index": 5529,
+        "sensitivity_at_rank": 44.599998474121094
+      },
+      {
+        "percentile_along_sorted_rank": 92.5,
+        "rank_index": 5682,
+        "sensitivity_at_rank": 49.08108139038086
+      },
+      {
+        "percentile_along_sorted_rank": 95.0,
+        "rank_index": 5836,
+        "sensitivity_at_rank": 55.66197204589844
+      },
+      {
+        "percentile_along_sorted_rank": 97.5,
+        "rank_index": 5989,
+        "sensitivity_at_rank": 68.71165466308594
+      },
+      {
+        "percentile_along_sorted_rank": 100.0,
+        "rank_index": 6143,
+        "sensitivity_at_rank": 307.20001220703125
+      }
+    ]
+  },
+  "active_only": {
+    "panel": "active_only",
+    "n_bars": 6144,
+    "sort": "sensitivity ascending over count>0 slots only",
+    "x_axis": "sorted_rank_percentile (0=left ... 100=right, matches bar plot)",
+    "y_axis": "quantization_sensitivity",
+    "percentile_step": 2.5,
+    "y_stats": {
+      "n_finite": 6144,
+      "min": 8.391304016113281,
+      "max": 307.20001220703125,
+      "mean": 26.928079414957512
+    },
+    "percentile_samples": [
+      {
+        "percentile_along_sorted_rank": 0.0,
+        "rank_index": 0,
+        "sensitivity_at_rank": 8.391304016113281
+      },
+      {
+        "percentile_along_sorted_rank": 2.5,
+        "rank_index": 154,
+        "sensitivity_at_rank": 10.612244606018066
+      },
+      {
+        "percentile_along_sorted_rank": 5.0,
+        "rank_index": 307,
+        "sensitivity_at_rank": 11.733333587646484
+      },
+      {
+        "percentile_along_sorted_rank": 7.5,
+        "rank_index": 461,
+        "sensitivity_at_rank": 12.564971923828125
+      },
+      {
+        "percentile_along_sorted_rank": 10.0,
+        "rank_index": 614,
+        "sensitivity_at_rank": 13.191489219665527
+      },
+      {
+        "percentile_along_sorted_rank": 12.5,
+        "rank_index": 768,
+        "sensitivity_at_rank": 13.815260887145996
+      },
+      {
+        "percentile_along_sorted_rank": 15.0,
+        "rank_index": 921,
+        "sensitivity_at_rank": 14.532110214233398
+      },
+      {
+        "percentile_along_sorted_rank": 17.5,
+        "rank_index": 1075,
+        "sensitivity_at_rank": 15.11111068725586
+      },
+      {
+        "percentile_along_sorted_rank": 20.0,
+        "rank_index": 1229,
+        "sensitivity_at_rank": 15.639098167419434
+      },
+      {
+        "percentile_along_sorted_rank": 22.5,
+        "rank_index": 1382,
+        "sensitivity_at_rank": 16.182857513427734
+      },
+      {
+        "percentile_along_sorted_rank": 25.0,
+        "rank_index": 1536,
+        "sensitivity_at_rank": 16.700000762939453
+      },
+      {
+        "percentile_along_sorted_rank": 27.5,
+        "rank_index": 1689,
+        "sensitivity_at_rank": 17.216373443603516
+      },
+      {
+        "percentile_along_sorted_rank": 30.0,
+        "rank_index": 1843,
+        "sensitivity_at_rank": 17.855072021484375
+      },
+      {
+        "percentile_along_sorted_rank": 32.5,
+        "rank_index": 1996,
+        "sensitivity_at_rank": 18.370370864868164
+      },
+      {
+        "percentile_along_sorted_rank": 35.0,
+        "rank_index": 2150,
+        "sensitivity_at_rank": 18.940540313720703
+      },
+      {
+        "percentile_along_sorted_rank": 37.5,
+        "rank_index": 2304,
+        "sensitivity_at_rank": 19.520000457763672
+      },
+      {
+        "percentile_along_sorted_rank": 40.0,
+        "rank_index": 2457,
+        "sensitivity_at_rank": 20.086956024169922
+      },
+      {
+        "percentile_along_sorted_rank": 42.5,
+        "rank_index": 2611,
+        "sensitivity_at_rank": 20.685083389282227
+      },
+      {
+        "percentile_along_sorted_rank": 45.0,
+        "rank_index": 2764,
+        "sensitivity_at_rank": 21.36842155456543
+      },
+      {
+        "percentile_along_sorted_rank": 47.5,
+        "rank_index": 2918,
+        "sensitivity_at_rank": 22.037734985351562
+      },
+      {
+        "percentile_along_sorted_rank": 50.0,
+        "rank_index": 3072,
+        "sensitivity_at_rank": 22.717557907104492
+      },
+      {
+        "percentile_along_sorted_rank": 52.5,
+        "rank_index": 3225,
+        "sensitivity_at_rank": 23.399999618530273
+      },
+      {
+        "percentile_along_sorted_rank": 55.0,
+        "rank_index": 3379,
+        "sensitivity_at_rank": 24.086021423339844
+      },
+      {
+        "percentile_along_sorted_rank": 57.5,
+        "rank_index": 3532,
+        "sensitivity_at_rank": 24.83333396911621
+      },
+      {
+        "percentile_along_sorted_rank": 60.0,
+        "rank_index": 3686,
+        "sensitivity_at_rank": 25.671642303466797
+      },
+      {
+        "percentile_along_sorted_rank": 62.5,
+        "rank_index": 3839,
+        "sensitivity_at_rank": 26.409639358520508
+      },
+      {
+        "percentile_along_sorted_rank": 65.0,
+        "rank_index": 3993,
+        "sensitivity_at_rank": 27.397260665893555
+      },
+      {
+        "percentile_along_sorted_rank": 67.5,
+        "rank_index": 4147,
+        "sensitivity_at_rank": 28.41121482849121
+      },
+      {
+        "percentile_along_sorted_rank": 70.0,
+        "rank_index": 4300,
+        "sensitivity_at_rank": 29.43511390686035
+      },
+      {
+        "percentile_along_sorted_rank": 72.5,
+        "rank_index": 4454,
+        "sensitivity_at_rank": 30.708520889282227
+      },
+      {
+        "percentile_along_sorted_rank": 75.0,
+        "rank_index": 4607,
+        "sensitivity_at_rank": 32.0
+      },
+      {
+        "percentile_along_sorted_rank": 77.5,
+        "rank_index": 4761,
+        "sensitivity_at_rank": 33.497074127197266
+      },
+      {
+        "percentile_along_sorted_rank": 80.0,
+        "rank_index": 4914,
+        "sensitivity_at_rank": 35.0684928894043
+      },
+      {
+        "percentile_along_sorted_rank": 82.5,
+        "rank_index": 5068,
+        "sensitivity_at_rank": 36.82539749145508
+      },
+      {
+        "percentile_along_sorted_rank": 85.0,
+        "rank_index": 5222,
+        "sensitivity_at_rank": 38.869110107421875
+      },
+      {
+        "percentile_along_sorted_rank": 87.5,
+        "rank_index": 5375,
+        "sensitivity_at_rank": 41.4591178894043
+      },
+      {
+        "percentile_along_sorted_rank": 90.0,
+        "rank_index": 5529,
+        "sensitivity_at_rank": 44.599998474121094
+      },
+      {
+        "percentile_along_sorted_rank": 92.5,
+        "rank_index": 5682,
+        "sensitivity_at_rank": 49.08108139038086
+      },
+      {
+        "percentile_along_sorted_rank": 95.0,
+        "rank_index": 5836,
+        "sensitivity_at_rank": 55.66197204589844
+      },
+      {
+        "percentile_along_sorted_rank": 97.5,
+        "rank_index": 5989,
+        "sensitivity_at_rank": 68.71165466308594
+      },
+      {
+        "percentile_along_sorted_rank": 100.0,
+        "rank_index": 6143,
+        "sensitivity_at_rank": 307.20001220703125
+      }
+    ]
+  },
+  "scatter_activation_vs_sensitivity": {
+    "schema": "expert_balance.distribution_summary.scatter.v1",
+    "x_mode": "linear",
+    "n_points": 6144,
+    "x_axis_for_analysis": "activation_count",
+    "marginal_x": {
+      "p0": 45.0,
+      "p2.5": 918.725,
+      "p5": 1469.0,
+      "p7.5": 2103.35,
+      "p10": 2625.2000000000003,
+      "p12.5": 3119.875,
+      "p15": 3618.45,
+      "p17.5": 4088.0499999999997,
+      "p20": 4516.400000000001,
+      "p22.5": 4994.7,
+      "p25": 5457.0,
+      "p27.5": 5881.325,
+      "p30": 6313.0,
+      "p32.5": 6738.475,
+      "p35": 7176.099999999999,
+      "p37.5": 7604.375,
+      "p40": 8084.200000000001,
+      "p42.5": 8662.0,
+      "p45": 9208.7,
+      "p47.5": 9874.925,
+      "p50": 10518.5,
+      "p52.5": 11217.150000000001,
+      "p55": 11953.000000000002,
+      "p57.5": 12804.9,
+      "p60": 13520.4,
+      "p62.5": 14239.375,
+      "p65": 14993.900000000001,
+      "p67.5": 15848.050000000001,
+      "p70": 16822.1,
+      "p72.5": 17840.100000000002,
+      "p75": 18709.0,
+      "p77.5": 19838.65,
+      "p80": 21068.800000000003,
+      "p82.5": 22441.799999999996,
+      "p85": 23796.500000000007,
+      "p87.5": 25255.75,
+      "p90": 27240.399999999998,
+      "p92.5": 29261.925000000025,
+      "p95": 31831.69999999999,
+      "p97.5": 36052.850000000006,
+      "p100": 63698.0
+    },
+    "marginal_y": {
+      "p0": 8.391304016113281,
+      "p2.5": 10.610736441612243,
+      "p5": 11.734081172943116,
+      "p7.5": 12.56473274230957,
+      "p10": 13.192805290222168,
+      "p12.5": 13.815129280090332,
+      "p15": 14.532110214233398,
+      "p17.5": 15.111247038841247,
+      "p20": 15.638662528991699,
+      "p22.5": 16.183415603637695,
+      "p25": 16.69891357421875,
+      "p27.5": 17.21670446395874,
+      "p30": 17.854828071594238,
+      "p32.5": 18.370370864868164,
+      "p35": 18.94068307876587,
+      "p37.5": 19.519502639770508,
+      "p40": 20.088764953613282,
+      "p42.5": 20.684598016738892,
+      "p45": 21.370071125030517,
+      "p47.5": 22.037363910675047,
+      "p50": 22.71629238128662,
+      "p52.5": 23.4000657081604,
+      "p55": 24.082580757141113,
+      "p57.5": 24.836742734909055,
+      "p60": 25.671379852294923,
+      "p62.5": 26.4116849899292,
+      "p65": 27.396767044067385,
+      "p67.5": 28.409765243530273,
+      "p70": 29.43729782104491,
+      "p72.5": 30.703762006759646,
+      "p75": 32.0,
+      "p77.5": 33.495001983642574,
+      "p80": 35.07980575561525,
+      "p82.5": 36.82524452209472,
+      "p85": 38.86372509002686,
+      "p87.5": 41.46072816848755,
+      "p90": 44.59806327819824,
+      "p92.5": 49.09206380844118,
+      "p95": 55.644751548767026,
+      "p97.5": 68.73234176635744,
+      "p100": 307.20001220703125
+    },
+    "correlation": {
+      "pearson": 0.04838020488183409,
+      "spearman": 0.06619330991737207
+    },
+    "histogram2d": {
+      "n_bins_each_axis": 16,
+      "x_bin_edges": [
+        45.0,
+        4023.3125,
+        8001.625,
+        11979.9375,
+        15958.25,
+        19936.5625,
+        23914.875,
+        27893.1875,
+        31871.5,
+        35849.8125,
+        39828.125,
+        43806.4375,
+        47784.75,
+        51763.0625,
+        55741.375,
+        59719.6875,
+        63698.0
+      ],
+      "y_bin_edges": [
+        8.391304016113281,
+        27.066848278045654,
+        45.74239253997803,
+        64.4179368019104,
+        83.09348106384277,
+        101.76902532577515,
+        120.44456958770752,
+        139.1201138496399,
+        157.79565811157227,
+        176.47120237350464,
+        195.146746635437,
+        213.82229089736938,
+        232.49783515930176,
+        251.17337942123413,
+        269.8489236831665,
+        288.5244679450989,
+        307.20001220703125
+      ],
+      "counts": [
+        [
+          627.0,
+          267.0,
+          89.0,
+          34.0,
+          19.0,
+          15.0,
+          4.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          1007.0,
+          303.0,
+          51.0,
+          10.0,
+          3.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        [
+          673.0,
+          227.0,
+          39.0,
+          6.0,
+          5.0,
+          1.0,
+          2.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          547.0,
+          183.0,
+          32.0,
+          6.0,
+          3.0,
+          3.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          367.0,
+          183.0,
+          36.0,
+          11.0,
+          4.0,
+          2.0,
+          2.0,
+          1.0,
+          0.0,
+          2.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          263.0,
+          142.0,
+          42.0,
+          11.0,
+          3.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          174.0,
+          137.0,
+          36.0,
+          7.0,
+          2.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          121.0,
+          88.0,
+          32.0,
+          7.0,
+          4.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          81.0,
+          43.0,
+          16.0,
+          6.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          37.0,
+          16.0,
+          7.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          35.0,
+          9.0,
+          3.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          10.0,
+          13.0,
+          5.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          2.0,
+          8.0,
+          2.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          2.0,
+          3.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          2.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ]
+    }
+  }
+}

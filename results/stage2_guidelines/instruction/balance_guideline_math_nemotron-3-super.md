@@ -1,0 +1,7 @@
+1. Focus on problem-solving elements involving mathematical operations and formulas, such as rotation matrices, root properties, and factoring techniques, as these frequently activate sparsely activated experts.
+2. Prioritize content related to geometric interpretations (e.g., coordinate geometry, vector rotations, complex plane analysis) and algebraic derivations, as these contexts consistently trigger expert activation.
+3. Avoid excessive reliance on procedural computation alone; instead, emphasize structural reasoning (e.g., symmetry, functional properties, or theoretical justifications) to deepen expert engagement.
+4. Minimize use of overly familiar or routine computational steps (e.g., basic arithmetic simplification, standard formula recall without application) to reduce activation of frequently activated experts.
+5. Incorporate varied mathematical domains (algebra, geometry, trigonometry, calculus) in samples to promote balanced expert activation while maintaining contextual coherence.
+6. Ensure samples require multi-step reasoning rather than single-operation tasks, as complex problem-solving increases the likelihood of activating sparse experts.
+7. Limit repetitive use of high-frequency tokens (e.g., common variables like x, y, or generic terms like "solve" or "find") to prevent over-reliance on frequently activated pathways.
