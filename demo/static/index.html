@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MoE Quantization Calibration Pipeline</title>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+  :root {
+    --bg:       #0d1117;
+    --surface:  #161b22;
+    --surface2: #1c2128;
+    --border:   #30363d;
+    --text:     #e6edf3;
+    --muted:    #8b949e;
+    --c0: #388bfd;
+    --c1: #3fb950;
+    --c2: #d29922;
+    --c3: #bc8cff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
+
+  /* ── Header ── */
+  header { padding: 32px 40px 0; }
+  .title-row { display: flex; align-items: center; gap: 14px; margin-bottom: 6px; }
+  .title-badge { background: linear-gradient(135deg, #388bfd, #bc8cff); border-radius: 8px; padding: 6px 12px; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #fff; }
+  h1 { font-size: 22px; font-weight: 700; color: var(--text); }
+  .subtitle { color: var(--muted); font-size: 13px; margin-bottom: 28px; }
+
+  /* ── Pipeline flow ── */
+  .pipeline { display: flex; align-items: center; gap: 0; padding: 20px 40px; background: var(--surface); border-bottom: 1px solid var(--border); overflow-x: auto; }
+  .pipe-box { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 18px; border-radius: 8px; border: 1.5px solid; cursor: pointer; transition: opacity .2s, transform .15s; min-width: 130px; user-select: none; }
+  .pipe-box:hover { opacity: .85; transform: translateY(-1px); }
+  .pipe-box.p0 { border-color: var(--c0); background: color-mix(in srgb, var(--c0) 10%, transparent); }
+  .pipe-box.p1 { border-color: var(--c1); background: color-mix(in srgb, var(--c1) 10%, transparent); }
+  .pipe-box.p2 { border-color: var(--c2); background: color-mix(in srgb, var(--c2) 10%, transparent); }
+  .pipe-box.p3 { border-color: var(--c3); background: color-mix(in srgb, var(--c3) 10%, transparent); }
+  .pipe-num  { font-size: 11px; font-weight: 700; opacity: .7; letter-spacing: .05em; }
+  .pipe-name { font-size: 12px; font-weight: 600; text-align: center; line-height: 1.3; }
+  .pipe-io   { font-size: 10px; color: var(--muted); text-align: center; }
+  .pipe-arrow { font-size: 20px; color: var(--border); padding: 0 8px; flex-shrink: 0; }
+
+  /* ── Main grid ── */
+  .phases-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 24px 40px 40px; }
+  @media (max-width: 900px) { .phases-grid { grid-template-columns: 1fr; } }
+
+  /* ── Phase card ── */
+  .phase-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
+  .card-header { padding: 16px 20px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; gap: 12px; }
+  .phase-badge { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 8px; font-size: 14px; font-weight: 800; flex-shrink: 0; color: #fff; margin-top: 1px; }
+  .p0 .phase-badge { background: var(--c0); }
+  .p1 .phase-badge { background: var(--c1); }
+  .p2 .phase-badge { background: var(--c2); color: #000; }
+  .p3 .phase-badge { background: var(--c3); }
+  .card-title-block { flex: 1; }
+  .card-title { font-size: 14px; font-weight: 700; line-height: 1.3; }
+  .card-desc  { font-size: 12px; color: var(--muted); margin-top: 3px; line-height: 1.4; }
+  .status-badge { font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 12px; border: 1px solid; white-space: nowrap; flex-shrink: 0; }
+  .status-idle    { color: var(--muted); border-color: var(--border); }
+  .status-running { color: #d29922; border-color: #d29922; animation: pulse 1.2s ease-in-out infinite; }
+  .status-done    { color: #3fb950; border-color: #3fb950; }
+  .status-error   { color: #f85149; border-color: #f85149; }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:.4; } }
+
+  /* io pills */
+  .io-row { display: flex; gap: 8px; padding: 10px 20px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  .io-pill { font-size: 10px; padding: 3px 8px; border-radius: 4px; font-family: 'SF Mono', 'Fira Code', monospace; }
+  .io-in  { background: color-mix(in srgb, #388bfd 15%, transparent); color: #388bfd; }
+  .io-out { background: color-mix(in srgb, #3fb950 15%, transparent); color: #3fb950; }
+  .io-label { font-size: 10px; color: var(--muted); padding: 3px 0; align-self: center; }
+
+  /* action buttons */
+  .card-actions { display: flex; gap: 8px; padding: 12px 20px; border-bottom: 1px solid var(--border); }
+  .btn { font-size: 12px; font-weight: 600; padding: 7px 14px; border-radius: 6px; border: 1px solid; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: opacity .15s, transform .1s; background: transparent; }
+  .btn:hover:not(:disabled) { opacity: .8; transform: translateY(-1px); }
+  .btn:disabled { opacity: .35; cursor: not-allowed; }
+  .btn-live { color: #f85149; border-color: #f85149; }
+  .btn-demo { color: #3fb950; border-color: #3fb950; }
+  .btn-stop { color: var(--muted); border-color: var(--border); }
+
+  /* log terminal */
+  .log-section { border-bottom: 1px solid var(--border); }
+  .section-toggle { width: 100%; text-align: left; background: var(--surface2); border: none; border-bottom: 1px solid var(--border); padding: 8px 20px; font-size: 11px; font-weight: 600; color: var(--muted); cursor: pointer; display: flex; align-items: center; gap: 6px; letter-spacing: .04em; text-transform: uppercase; }
+  .section-toggle:hover { color: var(--text); }
+  .chevron { font-size: 10px; transition: transform .2s; }
+  .chevron.open { transform: rotate(90deg); }
+  .log-body { display: none; background: #010409; padding: 12px 16px; max-height: 220px; overflow-y: auto; }
+  .log-body.open { display: block; }
+  .log-line { font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace; font-size: 11px; line-height: 1.6; color: #adbac7; white-space: pre-wrap; word-break: break-all; }
+  .log-line.success { color: #3fb950; }
+  .log-line.error   { color: #f85149; }
+  .log-line.info    { color: #58a6ff; }
+
+  /* results section */
+  .results-body { display: none; padding: 16px 20px; }
+  .results-body.open { display: block; }
+
+  /* tabs */
+  .tabs { display: flex; gap: 2px; margin-bottom: 14px; flex-wrap: wrap; }
+  .tab { font-size: 11px; font-weight: 600; padding: 5px 12px; border-radius: 5px; border: 1px solid var(--border); cursor: pointer; background: transparent; color: var(--muted); transition: .15s; }
+  .tab.active { background: var(--surface2); color: var(--text); border-color: var(--muted); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* sub-tabs */
+  .subtabs { display: flex; gap: 2px; margin-bottom: 10px; }
+  .subtab { font-size: 10px; font-weight: 600; padding: 3px 10px; border-radius: 4px; border: 1px solid var(--border); cursor: pointer; background: transparent; color: var(--muted); transition: .15s; }
+  .subtab.active { background: var(--border); color: var(--text); }
+
+  /* Phase 1 plots */
+  .plot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .plot-item { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; cursor: zoom-in; }
+  .plot-item img { width: 100%; display: block; }
+  .plot-label { font-size: 10px; color: var(--muted); padding: 5px 8px; text-align: center; }
+
+  /* stats row */
+  .stats-row { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+  .stat-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 10px 14px; flex: 1; min-width: 100px; }
+  .stat-val { font-size: 18px; font-weight: 700; font-family: 'SF Mono', monospace; }
+  .stat-lbl { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+  /* bracket sample */
+  .bracket-sample { background: #010409; border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; font-family: 'SF Mono', monospace; font-size: 11px; line-height: 1.7; max-height: 160px; overflow-y: auto; }
+  .bracket-sample .red  { color: #f85149; }
+  .bracket-sample .blue { color: #58a6ff; }
+
+  /* Phase 2 markdown */
+  .md-content { font-size: 12px; line-height: 1.7; color: var(--text); }
+  .md-content ol, .md-content ul { padding-left: 20px; }
+  .md-content li { margin-bottom: 4px; }
+  .md-content strong { color: #e6edf3; }
+
+  /* Phase 3 sample cards */
+  .sample-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 10px 14px; margin-bottom: 8px; }
+  .sample-card .sys { font-size: 10px; color: var(--muted); margin-bottom: 6px; }
+  .sample-card .body { font-size: 11px; line-height: 1.6; max-height: 80px; overflow: hidden; position: relative; }
+  .sample-card .body::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 24px; background: linear-gradient(transparent, var(--surface2)); }
+  .sample-meta { display: flex; gap: 6px; margin-top: 6px; }
+  .meta-tag { font-size: 10px; padding: 1px 6px; border-radius: 3px; background: var(--border); color: var(--muted); }
+
+  /* image lightbox */
+  .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.85); z-index: 1000; align-items: center; justify-content: center; cursor: zoom-out; }
+  .lightbox.open { display: flex; }
+  .lightbox img { max-width: 92vw; max-height: 90vh; border-radius: 6px; box-shadow: 0 20px 60px rgba(0,0,0,.6); }
+
+  /* Phase 0 info */
+  .phase0-info { font-size: 12px; line-height: 1.7; }
+  .config-grid { display: grid; grid-template-columns: auto 1fr; gap: 4px 16px; margin: 10px 0; font-size: 11px; }
+  .cfg-key { color: var(--muted); font-family: monospace; }
+  .cfg-val { color: #58a6ff; font-family: monospace; }
+  .output-tree { background: #010409; border: 1px solid var(--border); border-radius: 6px; padding: 10px 14px; font-family: monospace; font-size: 11px; line-height: 1.8; color: #adbac7; margin-top: 10px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="title-row">
+    <div class="title-badge">NVIDIA NIM · Hackathon 2025</div>
+  </div>
+  <h1>MoE Quantization Calibration Pipeline</h1>
+  <p class="subtitle">Expert-routing-aware calibration data synthesis for GPTQ quantization of Mixture-of-Experts LLMs</p>
+</header>
+
+<!-- Pipeline flow -->
+<div class="pipeline">
+  <div class="pipe-box p0" onclick="scrollToPhase(0)">
+    <span class="pipe-num">PHASE 0</span>
+    <span class="pipe-name">Quantize &amp; Evaluate</span>
+    <span class="pipe-io">GPTQ W4A16 · TRT-LLM</span>
+  </div>
+  <span class="pipe-arrow">→</span>
+  <div class="pipe-box p1" onclick="scrollToPhase(1)">
+    <span class="pipe-num">PHASE 1</span>
+    <span class="pipe-name">Analyze Expert Routing</span>
+    <span class="pipe-io">Token → Expert mapping</span>
+  </div>
+  <span class="pipe-arrow">→</span>
+  <div class="pipe-box p2" onclick="scrollToPhase(2)">
+    <span class="pipe-num">PHASE 2</span>
+    <span class="pipe-name">Extract Text Patterns</span>
+    <span class="pipe-io">Nemotron-3-Super</span>
+  </div>
+  <span class="pipe-arrow">→</span>
+  <div class="pipe-box p3" onclick="scrollToPhase(3)">
+    <span class="pipe-num">PHASE 3</span>
+    <span class="pipe-name">Generate Synthetic Data</span>
+    <span class="pipe-io">NVIDIA Data Designer</span>
+  </div>
+  <span class="pipe-arrow" style="opacity:.3">↺</span>
+  <span style="font-size:11px;color:var(--muted);padding:0 4px;">Repeat 1→3 until balanced</span>
+</div>
+
+<!-- Phase cards -->
+<div class="phases-grid">
+
+  <!-- ── Phase 0 ── -->
+  <div class="phase-card p0" id="card-0">
+    <div class="card-header">
+      <div class="phase-badge">0</div>
+      <div class="card-title-block">
+        <div class="card-title">Quantize initial model and evaluate on benchmark tasks</div>
+        <div class="card-desc">Compute GPTQ Hessians, apply W4A16 quantization, build TRT-LLM engine, run NeMo Evaluator benchmarks</div>
+      </div>
+      <span class="status-badge status-idle" id="status-0">IDLE</span>
+    </div>
+    <div class="io-row">
+      <span class="io-label">IN</span>
+      <span class="io-pill io-in">Base model checkpoint</span>
+      <span class="io-pill io-in">Nemotron Post-Training Dataset</span>
+      <span class="io-label" style="margin-left:8px">OUT</span>
+      <span class="io-pill io-out">Quantized checkpoint</span>
+      <span class="io-pill io-out">TRT-LLM engine</span>
+      <span class="io-pill io-out">Benchmark results</span>
+    </div>
+    <div class="card-actions">
+      <button class="btn btn-live" id="live-btn-0" onclick="runLive(0)">▶ Run Live</button>
+      <button class="btn btn-demo" id="demo-btn-0" onclick="loadDemo(0)">📂 Load Demo</button>
+      <button class="btn btn-stop" id="stop-btn-0" style="display:none" onclick="stopRun(0)">■ Stop</button>
+    </div>
+    <div class="log-section">
+      <button class="section-toggle" onclick="toggleSection('log-0','chev-log-0')">
+        <span class="chevron" id="chev-log-0">▶</span> Terminal Log
+      </button>
+      <div class="log-body" id="log-0"></div>
+    </div>
+    <div>
+      <button class="section-toggle" onclick="toggleSection('results-0','chev-res-0')">
+        <span class="chevron" id="chev-res-0">▶</span> Results
+      </button>
+      <div class="results-body" id="results-0">
+        <div class="phase0-info">
+          <p style="color:var(--muted);font-size:12px;margin-bottom:12px;">Phase 0 produces large model artifacts stored under <code style="font-size:11px;background:var(--surface2);padding:1px 5px;border-radius:3px;">model/</code> (gitignored). Configuration and expected outputs are shown below.</p>
+          <div class="config-grid">
+            <span class="cfg-key">MODEL_NAME</span><span class="cfg-val">qwen3_30b_a3b</span>
+            <span class="cfg-key">QUANTIZE</span><span class="cfg-val">GPTQ_W4A16</span>
+            <span class="cfg-key">CALIB_SIZE</span><span class="cfg-val">128</span>
+            <span class="cfg-key">FULL_GPU_DEVICES</span><span class="cfg-val">0,1,2,3,4,5,6,7</span>
+            <span class="cfg-key">TARGET_GPU_DEVICES</span><span class="cfg-val">7</span>
+          </div>
+          <div class="output-tree">
+model/<br>
+├── calib_dataset/D0_128/    ← calibration samples + Hessians<br>
+├── quantized/qwen3_30b_a3b_gptq_w4a16/    ← quantized checkpoint<br>
+├── trt_engine/    ← TensorRT-LLM engine<br>
+└── eval_results/    ← GSM8K · GPQA Diamond · MMLU-Pro
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Phase 1 ── -->
+  <div class="phase-card p1" id="card-1">
+    <div class="card-header">
+      <div class="phase-badge">1</div>
+      <div class="card-title-block">
+        <div class="card-title">Analyze activated experts statistics from calibration data</div>
+        <div class="card-desc">Forward-pass calibration samples; record token→expert routing; compute activation &amp; weight sensitivity distributions</div>
+      </div>
+      <span class="status-badge status-idle" id="status-1">IDLE</span>
+    </div>
+    <div class="io-row">
+      <span class="io-label">IN</span>
+      <span class="io-pill io-in">Calibration dataset (D0_128)</span>
+      <span class="io-pill io-in">Base model weights</span>
+      <span class="io-label" style="margin-left:8px">OUT</span>
+      <span class="io-pill io-out">token_routing.jsonl</span>
+      <span class="io-pill io-out">Expert dist. plots</span>
+      <span class="io-pill io-out">bracketed_balance.jsonl</span>
+    </div>
+    <div class="card-actions">
+      <button class="btn btn-live" id="live-btn-1" onclick="runLive(1)">▶ Run Live</button>
+      <button class="btn btn-demo" id="demo-btn-1" onclick="loadDemo(1)">📂 Load Demo</button>
+      <button class="btn btn-stop" id="stop-btn-1" style="display:none" onclick="stopRun(1)">■ Stop</button>
+    </div>
+    <div class="log-section">
+      <button class="section-toggle" onclick="toggleSection('log-1','chev-log-1')">
+        <span class="chevron" id="chev-log-1">▶</span> Terminal Log
+      </button>
+      <div class="log-body" id="log-1"></div>
+    </div>
+    <div>
+      <button class="section-toggle" onclick="toggleSection('results-1','chev-res-1')">
+        <span class="chevron" id="chev-res-1">▶</span> Results
+      </button>
+      <div class="results-body" id="results-1">
+        <div id="phase1-content"><p style="color:var(--muted);font-size:12px;">Click "Load Demo" to view results.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Phase 2 ── -->
+  <div class="phase-card p2" id="card-2">
+    <div class="card-header">
+      <div class="phase-badge">2</div>
+      <div class="card-title-block">
+        <div class="card-title">Extract text patterns causing frequent/scarce expert activation</div>
+        <div class="card-desc">Feed &lt;red&gt;/&lt;blue&gt; annotated samples to Nemotron-3-Super; extract per-domain activation guidelines</div>
+      </div>
+      <span class="status-badge status-idle" id="status-2">IDLE</span>
+    </div>
+    <div class="io-row">
+      <span class="io-label">IN</span>
+      <span class="io-pill io-in">bracketed_balance.jsonl</span>
+      <span class="io-pill io-in">Nemotron-3-Super (vLLM)</span>
+      <span class="io-label" style="margin-left:8px">OUT</span>
+      <span class="io-pill io-out">balance_guideline_{domain}.md</span>
+      <span class="io-pill io-out">q_sensitivity_guideline_{domain}.md</span>
+    </div>
+    <div class="card-actions">
+      <button class="btn btn-live" id="live-btn-2" onclick="runLive(2)">▶ Run Live</button>
+      <button class="btn btn-demo" id="demo-btn-2" onclick="loadDemo(2)">📂 Load Demo</button>
+      <button class="btn btn-stop" id="stop-btn-2" style="display:none" onclick="stopRun(2)">■ Stop</button>
+    </div>
+    <div class="log-section">
+      <button class="section-toggle" onclick="toggleSection('log-2','chev-log-2')">
+        <span class="chevron" id="chev-log-2">▶</span> Terminal Log
+      </button>
+      <div class="log-body" id="log-2"></div>
+    </div>
+    <div>
+      <button class="section-toggle" onclick="toggleSection('results-2','chev-res-2')">
+        <span class="chevron" id="chev-res-2">▶</span> Results
+      </button>
+      <div class="results-body" id="results-2">
+        <div id="phase2-content"><p style="color:var(--muted);font-size:12px;">Click "Load Demo" to view results.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Phase 3 ── -->
+  <div class="phase-card p3" id="card-3">
+    <div class="card-header">
+      <div class="phase-badge">3</div>
+      <div class="card-title-block">
+        <div class="card-title">Generate synthetic calibration dataset achieving balanced expert activation</div>
+        <div class="card-desc">8 parallel generation tasks (2 guideline types × 4 domains) using NVIDIA Data Designer + vLLM</div>
+      </div>
+      <span class="status-badge status-idle" id="status-3">IDLE</span>
+    </div>
+    <div class="io-row">
+      <span class="io-label">IN</span>
+      <span class="io-pill io-in">balance/q_sensitivity guidelines</span>
+      <span class="io-pill io-in">Seed data (bracketed JSONL)</span>
+      <span class="io-label" style="margin-left:8px">OUT</span>
+      <span class="io-pill io-out">calibration_balance_all.parquet</span>
+      <span class="io-pill io-out">calibration_q_sensitivity_all.parquet</span>
+    </div>
+    <div class="card-actions">
+      <button class="btn btn-live" id="live-btn-3" onclick="runLive(3)">▶ Run Live</button>
+      <button class="btn btn-demo" id="demo-btn-3" onclick="loadDemo(3)">📂 Load Demo</button>
+      <button class="btn btn-stop" id="stop-btn-3" style="display:none" onclick="stopRun(3)">■ Stop</button>
+    </div>
+    <div class="log-section">
+      <button class="section-toggle" onclick="toggleSection('log-3','chev-log-3')">
+        <span class="chevron" id="chev-log-3">▶</span> Terminal Log
+      </button>
+      <div class="log-body" id="log-3"></div>
+    </div>
+    <div>
+      <button class="section-toggle" onclick="toggleSection('results-3','chev-res-3')">
+        <span class="chevron" id="chev-res-3">▶</span> Results
+      </button>
+      <div class="results-body" id="results-3">
+        <div id="phase3-content"><p style="color:var(--muted);font-size:12px;">Click "Load Demo" to view results.</p></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /phases-grid -->
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <img id="lightbox-img" src="" alt="">
+</div>
+
+<script>
+// ── Simulated logs per phase ──────────────────────────────────────────────────
+const SIM_LOGS = {
+  0: [
+    {t:0,   c:'info',    l:'[Phase 0] Quantize initial model and evaluate on benchmark tasks'},
+    {t:300, c:'',        l:'Building calibration dataset from Nemotron-Post-Training-Dataset-v1...'},
+    {t:600, c:'',        l:'  → Loaded 128 samples across chat / code / stem / math domains'},
+    {t:900, c:'info',    l:'Computing GPTQ Hessians (GPUs: 0,1,2,3,4,5,6,7)...'},
+    {t:1200,c:'',        l:'  → Processing transformer layers 0–63...'},
+    {t:1500,c:'',        l:'  → Hessian computation complete'},
+    {t:1800,c:'info',    l:'Applying GPTQ W4A16 quantization...'},
+    {t:2100,c:'',        l:'  → Quantizing attention layers...'},
+    {t:2400,c:'',        l:'  → Quantizing MoE expert weights (128 experts × 48 layers)...'},
+    {t:2700,c:'success', l:'  → Saved: model/quantized/qwen3_30b_a3b_gptq_w4a16/'},
+    {t:3000,c:'info',    l:'Building TensorRT-LLM engine (GPU 7)...'},
+    {t:3300,c:'success', l:'  → Engine saved: model/trt_engine/qwen3_30b_a3b_gptq_w4a16_tp1/'},
+    {t:3600,c:'info',    l:'Running NeMo Evaluator benchmarks...'},
+    {t:3900,c:'',        l:'  → GSM8K:       87.3%'},
+    {t:4200,c:'',        l:'  → GPQA Diamond: 52.1%'},
+    {t:4500,c:'',        l:'  → MMLU-Pro:     68.4%'},
+    {t:4800,c:'success', l:'[Phase 0 Complete] Results saved to model/eval_results/'},
+  ],
+  1: [
+    {t:0,   c:'info',    l:'[Phase 1] Analyze activated experts statistics from calibration data'},
+    {t:300, c:'',        l:'Loading calibration dataset (D0_128)...'},
+    {t:600, c:'',        l:'  → 128 samples loaded (chat=32, code=32, stem=32, math=32)'},
+    {t:900, c:'info',    l:'[Step 2] Running forward pass to record expert routing...'},
+    {t:1200,c:'',        l:'  → 128/128 samples processed | 208,775 tokens | 6,144 active experts'},
+    {t:1500,c:'success', l:'  → Saved: results/phase1_routing/.../s2_expert_count/token_routing.jsonl'},
+    {t:1800,c:'info',    l:'[Step 3a] Computing expert activation frequency distribution...'},
+    {t:2100,c:'info',    l:'[Step 3b] Applying thresholds (freq_thr=0.25, less_thr=0.25)...'},
+    {t:2400,c:'success', l:'  → Saved: s3_expert_dist/  (plots + JSON summary)'},
+    {t:2700,c:'info',    l:'[Step 4a] Computing weight outlier sensitivity per expert...'},
+    {t:3000,c:'info',    l:'[Step 4b] Applying sensitivity thresholds (rob=0.25, sen=0.25)...'},
+    {t:3300,c:'success', l:'  → Saved: s4_weight_outlier/  (plots + JSON summary)'},
+    {t:3600,c:'info',    l:'[Step 5a] Sorting tokens by balance score and plotting scatter...'},
+    {t:3900,c:'info',    l:'[Step 5b] Classifying tokens  ⬤ blue=dense  ⬤ red=sparse'},
+    {t:4200,c:'success', l:'  → Saved: s5_sorted_token/  (plots + classified JSON)'},
+    {t:4500,c:'info',    l:'[Step 6] Applying <red>/<blue> bracket tags to 128 samples...'},
+    {t:4800,c:'success', l:'  → Saved: s6_apply_bracket/bracketed_balance.jsonl'},
+    {t:5100,c:'success', l:'[Phase 1 Complete]'},
+  ],
+  2: [
+    {t:0,   c:'info',    l:'[Phase 2] Extract text patterns causing frequent/scarce expert activation'},
+    {t:300, c:'',        l:'Loading bracketed samples from Phase 1...'},
+    {t:600, c:'',        l:'  → 128 annotated samples loaded'},
+    {t:900, c:'info',    l:'Connecting to LLM server (nemotron-3-super @ http://localhost:8000/v1)...'},
+    {t:1200,c:'success', l:'  → Server reachable ✓'},
+    {t:1500,c:'info',    l:''},
+    {t:1600,c:'info',    l:'[Domain: CHAT]'},
+    {t:1900,c:'',        l:'  → Sending 30 samples for pattern analysis (thinking budget: 8192 tok)...'},
+    {t:2200,c:'',        l:'  → Reasoning...  ████████░░░░  64%'},
+    {t:2500,c:'success', l:'  → Saved: balance_guideline_chat_nemotron-3-super.md'},
+    {t:2800,c:'info',    l:'[Domain: CODE]'},
+    {t:3100,c:'success', l:'  → Saved: balance_guideline_code_nemotron-3-super.md'},
+    {t:3400,c:'info',    l:'[Domain: MATH]'},
+    {t:3700,c:'success', l:'  → Saved: balance_guideline_math_nemotron-3-super.md'},
+    {t:4000,c:'info',    l:'[Domain: STEM]'},
+    {t:4300,c:'success', l:'  → Saved: balance_guideline_stem_nemotron-3-super.md'},
+    {t:4600,c:'success', l:'[Phase 2 Complete] 8 guideline files saved to results/phase2_guidelines/instruction/'},
+  ],
+  3: [
+    {t:0,   c:'info',    l:'[Phase 3] Generate synthetic calibration dataset achieving balanced expert activation'},
+    {t:300, c:'',        l:'Loading Phase 1 seed data and Phase 2 guidelines...'},
+    {t:600, c:'info',    l:'Launching 8 parallel generation tasks...'},
+    {t:900, c:'',        l:'  [balance/chat]        → Generating 128 samples...'},
+    {t:1000,c:'',        l:'  [balance/code]        → Generating 128 samples...'},
+    {t:1100,c:'',        l:'  [balance/math]        → Generating 128 samples...'},
+    {t:1200,c:'',        l:'  [balance/stem]        → Generating 128 samples...'},
+    {t:1300,c:'',        l:'  [q_sensitivity/chat]  → Generating 128 samples...'},
+    {t:1400,c:'',        l:'  [q_sensitivity/code]  → Generating 128 samples...'},
+    {t:1500,c:'',        l:'  [q_sensitivity/math]  → Generating 128 samples...'},
+    {t:1600,c:'',        l:'  [q_sensitivity/stem]  → Generating 128 samples...'},
+    {t:2400,c:'success', l:'  [balance/code]        → 128 samples complete ✓'},
+    {t:2800,c:'success', l:'  [q_sensitivity/chat]  → 128 samples complete ✓'},
+    {t:3200,c:'success', l:'  [balance/math]        → 128 samples complete ✓'},
+    {t:3600,c:'success', l:'  [q_sensitivity/code]  → 128 samples complete ✓'},
+    {t:4000,c:'success', l:'  [balance/stem]        → 128 samples complete ✓'},
+    {t:4400,c:'success', l:'  [q_sensitivity/math]  → 128 samples complete ✓'},
+    {t:4800,c:'success', l:'  [balance/chat]        → 128 samples complete ✓'},
+    {t:5200,c:'success', l:'  [q_sensitivity/stem]  → 128 samples complete ✓'},
+    {t:5500,c:'info',    l:'Merging datasets...'},
+    {t:5800,c:'success', l:'  → calibration_balance_all.parquet      (512 samples)'},
+    {t:6100,c:'success', l:'  → calibration_q_sensitivity_all.parquet (512 samples)'},
+    {t:6400,c:'success', l:'[Phase 3 Complete] Datasets saved to results/phase3_dataset/output_per_domain/'},
+  ],
+};
+
+// ── State ────────────────────────────────────────────────────────────────────
+const state = { eventSources: {}, simTimers: {} };
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+function setStatus(phase, cls, text) {
+  const el = document.getElementById(`status-${phase}`);
+  el.className = `status-badge status-${cls}`;
+  el.textContent = text;
+}
+
+function appendLog(phase, text, cls = '') {
+  const log = document.getElementById(`log-${phase}`);
+  const div = document.createElement('div');
+  div.className = `log-line ${cls}`;
+  div.textContent = text;
+  log.appendChild(div);
+  log.scrollTop = log.scrollHeight;
+  // auto-open log section
+  if (!log.classList.contains('open')) {
+    log.classList.add('open');
+    document.getElementById(`chev-log-${phase}`).classList.add('open');
+  }
+}
+
+function clearLog(phase) {
+  document.getElementById(`log-${phase}`).innerHTML = '';
+}
+
+function toggleSection(id, chevId) {
+  const body = document.getElementById(id);
+  const chev = document.getElementById(chevId);
+  body.classList.toggle('open');
+  chev.classList.toggle('open');
+}
+
+function setButtonState(phase, running) {
+  document.getElementById(`live-btn-${phase}`).disabled = running;
+  document.getElementById(`demo-btn-${phase}`).disabled = running;
+  document.getElementById(`stop-btn-${phase}`).style.display = running ? '' : 'none';
+}
+
+function scrollToPhase(phase) {
+  document.getElementById(`card-${phase}`).scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ── Live run (SSE) ────────────────────────────────────────────────────────────
+function runLive(phase) {
+  clearLog(phase);
+  setStatus(phase, 'running', 'RUNNING');
+  setButtonState(phase, true);
+
+  const es = new EventSource(`/api/run/${phase}/stream`);
+  state.eventSources[phase] = es;
+
+  es.onmessage = (e) => {
+    const msg = JSON.parse(e.data);
+    if (msg.line !== undefined) {
+      appendLog(phase, msg.line);
+    } else if (msg.done) {
+      const ok = msg.returncode === 0;
+      setStatus(phase, ok ? 'done' : 'error', ok ? 'DONE' : 'ERROR');
+      appendLog(phase, ok ? '✓ Process exited 0' : `✗ Exit code ${msg.returncode}`, ok ? 'success' : 'error');
+      setButtonState(phase, false);
+      es.close();
+    } else if (msg.error) {
+      appendLog(phase, `Error: ${msg.error}`, 'error');
+      setStatus(phase, 'error', 'ERROR');
+      setButtonState(phase, false);
+      es.close();
+    }
+  };
+  es.onerror = () => {
+    setStatus(phase, 'error', 'ERROR');
+    setButtonState(phase, false);
+    es.close();
+  };
+}
+
+function stopRun(phase) {
+  if (state.eventSources[phase]) { state.eventSources[phase].close(); delete state.eventSources[phase]; }
+  Object.values(state.simTimers[phase] || {}).forEach(clearTimeout);
+  state.simTimers[phase] = {};
+  setStatus(phase, 'idle', 'IDLE');
+  setButtonState(phase, false);
+  appendLog(phase, '■ Stopped by user', 'error');
+}
+
+// ── Demo mode ─────────────────────────────────────────────────────────────────
+function loadDemo(phase) {
+  clearLog(phase);
+  setStatus(phase, 'running', 'RUNNING');
+  setButtonState(phase, true);
+  state.simTimers[phase] = {};
+
+  const logs = SIM_LOGS[phase] || [];
+  const BASE_MS = 120; // speed multiplier
+
+  logs.forEach(({ t, c, l }) => {
+    const tid = setTimeout(() => appendLog(phase, l, c), t / 5);
+    state.simTimers[phase][t] = tid;
+  });
+
+  const lastT = logs.length ? logs[logs.length - 1].t : 0;
+  const doneT = setTimeout(async () => {
+    setStatus(phase, 'done', 'DONE');
+    setButtonState(phase, false);
+    if (phase > 0) {
+      await fetchAndRenderResults(phase);
+    } else {
+      // Phase 0: open results panel
+      const rb = document.getElementById('results-0');
+      if (!rb.classList.contains('open')) toggleSection('results-0', 'chev-res-0');
+    }
+  }, lastT / 5 + 400);
+  state.simTimers[phase]['done'] = doneT;
+}
+
+// ── Result fetching & rendering ──────────────────────────────────────────────
+async function fetchAndRenderResults(phase) {
+  const rb = document.getElementById(`results-${phase}`);
+  if (!rb.classList.contains('open')) toggleSection(`results-${phase}`, `chev-res-${phase}`);
+
+  try {
+    const res = await fetch(`/api/results/phase${phase}`);
+    const data = await res.json();
+    if (phase === 1) renderPhase1(data);
+    if (phase === 2) renderPhase2(data);
+    if (phase === 3) renderPhase3(data);
+  } catch (e) {
+    document.getElementById(`phase${phase}-content`).innerHTML =
+      `<p style="color:#f85149;font-size:12px;">Failed to load results: ${e.message}</p>`;
+  }
+}
+
+// ── Phase 1 renderer ──────────────────────────────────────────────────────────
+function renderPhase1(data) {
+  const el = document.getElementById('phase1-content');
+  const stats = data.stats || {};
+  const ds = stats.expert_dist || {};
+
+  // Key stats
+  const totalTok  = (ds.total_tokens || 0).toLocaleString();
+  const totalEvt  = (ds.total_activation_events || 0).toLocaleString();
+  const nActive   = (ds.n_active_experts || 0).toLocaleString();
+  const activeOnly = ds.active_only || {};
+  const yStats    = activeOnly.y_stats || {};
+  const mean = yStats.mean != null ? yStats.mean.toFixed(2) : '—';
+  const std  = yStats.std  != null ? yStats.std.toFixed(2)  : '—';
+
+  // Bracket sample
+  let bracketHtml = '';
+  if (data.bracket_sample) {
+    const s = data.bracket_sample;
+    const safeText = s.text
+      ? s.text.replace(/</g, '&lt;').replace(/>/g, '&gt;')
+              .replace(/&lt;red&gt;/g,   '<span class="red">&lt;red&gt;')
+              .replace(/&lt;\/red&gt;/g, '&lt;/red&gt;</span>')
+              .replace(/&lt;blue&gt;/g,  '<span class="blue">&lt;blue&gt;')
+              .replace(/&lt;\/blue&gt;/g,'&lt;/blue&gt;</span>')
+      : '';
+    bracketHtml = `
+      <div style="margin-top:14px;">
+        <p style="font-size:11px;color:var(--muted);margin-bottom:6px;">
+          Sample bracketed token  |  domain: <strong>${s.domain || ''}</strong>
+          &nbsp;·&nbsp; <span class="red">■</span> sparse experts: ${s.n_tokens_red ?? '?'}
+          &nbsp;·&nbsp; <span class="blue">■</span> dense experts: ${s.n_tokens_blue ?? '?'}
+        </p>
+        <div class="bracket-sample">${safeText}</div>
+      </div>`;
+  }
+
+  // Plots
+  const plots = data.plots || {};
+  const plotItems = Object.entries(plots).map(([label, src]) => `
+    <div class="plot-item" onclick="openLightbox('${src}')">
+      <img src="${src}" alt="${label}" loading="lazy">
+      <div class="plot-label">${label}</div>
+    </div>`).join('');
+
+  el.innerHTML = `
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-val" style="color:var(--c1)">${totalTok}</div><div class="stat-lbl">Total Tokens</div></div>
+      <div class="stat-box"><div class="stat-val" style="color:var(--c1)">${nActive}</div><div class="stat-lbl">Active Experts</div></div>
+      <div class="stat-box"><div class="stat-val" style="color:var(--c1)">${mean}</div><div class="stat-lbl">Activation Mean</div></div>
+      <div class="stat-box"><div class="stat-val" style="color:var(--c1)">${std}</div><div class="stat-lbl">Activation Std</div></div>
+    </div>
+    <div class="plot-grid">${plotItems}</div>
+    ${bracketHtml}`;
+}
+
+// ── Phase 2 renderer ──────────────────────────────────────────────────────────
+function renderPhase2(data) {
+  const el = document.getElementById('phase2-content');
+  const domains = data.domains || {};
+  const domList = Object.keys(domains);
+
+  const tabsHtml = domList.map((d, i) =>
+    `<button class="tab ${i===0?'active':''}" onclick="switchTab(this,'p2-tab-${d}','p2-tabs')">${d.toUpperCase()}</button>`
+  ).join('');
+
+  const contentsHtml = domList.map((d, i) => {
+    const dom = domains[d] || {};
+    const balMd  = dom.balance       ? marked.parse(dom.balance)       : '<em>No data</em>';
+    const qMd    = dom.q_sensitivity ? marked.parse(dom.q_sensitivity)  : '<em>No data</em>';
+    return `
+      <div class="tab-content ${i===0?'active':''}" id="p2-tab-${d}">
+        <div class="subtabs">
+          <button class="subtab active" onclick="switchSubtab(this,'p2-sub-bal-${d}','p2-subs-${d}')">Balance</button>
+          <button class="subtab" onclick="switchSubtab(this,'p2-sub-qsens-${d}','p2-subs-${d}')">Q-Sensitivity</button>
+        </div>
+        <div id="p2-subs-${d}">
+          <div class="tab-content active" id="p2-sub-bal-${d}"><div class="md-content">${balMd}</div></div>
+          <div class="tab-content" id="p2-sub-qsens-${d}"><div class="md-content">${qMd}</div></div>
+        </div>
+      </div>`;
+  }).join('');
+
+  el.innerHTML = `
+    <p style="font-size:11px;color:var(--muted);margin-bottom:10px;">
+      Guidelines generated by <strong>Nemotron-3-Super-120B</strong> with extended thinking (budget 8 192 tokens).
+    </p>
+    <div class="tabs" id="p2-tabs">${tabsHtml}</div>
+    ${contentsHtml}`;
+}
+
+// ── Phase 3 renderer ──────────────────────────────────────────────────────────
+function renderPhase3(data) {
+  const el = document.getElementById('phase3-content');
+  const totals = data.totals || {};
+  const domList = ['chat', 'code', 'math', 'stem'];
+
+  const statsHtml = `
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-val" style="color:var(--c3)">${totals.balance ?? '?'}</div><div class="stat-lbl">Balance Samples</div></div>
+      <div class="stat-box"><div class="stat-val" style="color:var(--c3)">${totals.q_sensitivity ?? '?'}</div><div class="stat-lbl">Q-Sens Samples</div></div>
+    </div>`;
+
+  const gtabsHtml = `
+    <div class="subtabs" style="margin-bottom:12px;">
+      <button class="subtab active" onclick="switchSubtab(this,'p3-gt-balance','p3-gtabs')">Balance</button>
+      <button class="subtab" onclick="switchSubtab(this,'p3-gt-q_sensitivity','p3-gtabs')">Q-Sensitivity</button>
+    </div>
+    <div id="p3-gtabs">
+      ${['balance','q_sensitivity'].map((gtype,gi) => `
+        <div class="tab-content ${gi===0?'active':''}" id="p3-gt-${gtype}">
+          <div class="tabs" id="p3-dtabs-${gtype}">
+            ${domList.map((d,di) => `<button class="tab ${di===0?'active':''}" onclick="switchTab(this,'p3-dom-${gtype}-${d}','p3-dtabs-${gtype}')">${d.toUpperCase()}</button>`).join('')}
+          </div>
+          ${domList.map((d,di) => {
+            const samples = (data[gtype] && data[gtype][d]) ? data[gtype][d] : [];
+            const cards = samples.map(s => {
+              const sys  = s.system_style ? escHtml(s.system_style).substring(0,120)+'…' : '';
+              const body = s.seed_augmentation ? escHtml(s.seed_augmentation).substring(0,300) : JSON.stringify(s).substring(0,200);
+              const qs   = s.quality_score != null ? `<span class="meta-tag">score: ${s.quality_score}</span>` : '';
+              return `<div class="sample-card">
+                <div class="sys">${sys}</div>
+                <div class="body">${body}</div>
+                <div class="sample-meta"><span class="meta-tag">${d}</span>${qs}</div>
+              </div>`;
+            }).join('') || '<p style="color:var(--muted);font-size:12px;">No preview data available.</p>';
+            return `<div class="tab-content ${di===0?'active':''}" id="p3-dom-${gtype}-${d}">${cards}</div>`;
+          }).join('')}
+        </div>`).join('')}
+    </div>`;
+
+  el.innerHTML = statsHtml + gtabsHtml;
+}
+
+// ── Tab helpers ───────────────────────────────────────────────────────────────
+function switchTab(btn, targetId, groupId) {
+  const group = document.getElementById(groupId);
+  group.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  const parent = document.getElementById(targetId).parentElement;
+  parent.querySelectorAll(':scope > .tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById(targetId).classList.add('active');
+}
+
+function switchSubtab(btn, targetId, groupId) {
+  const group = document.getElementById(groupId);
+  const btnParent = btn.closest('.subtabs');
+  btnParent.querySelectorAll('.subtab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  group.querySelectorAll(':scope > .tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById(targetId).classList.add('active');
+}
+
+// ── Lightbox ──────────────────────────────────────────────────────────────────
+function openLightbox(src) {
+  document.getElementById('lightbox-img').src = src;
+  document.getElementById('lightbox').classList.add('open');
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+// ── Util ──────────────────────────────────────────────────────────────────────
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+</script>
+</body>
+</html>
