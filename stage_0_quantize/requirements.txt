@@ -1,0 +1,91 @@
+# Stage 0: Quantize Initial Model
+# Virtual environment: quant_expert_analysis
+#
+# IMPORTANT: Several packages require NVIDIA's private PyPI index.
+# Follow the installation steps in the README before using this file.
+#
+# Recommended setup (Python 3.12 required):
+#   uv venv --python 3.12 --seed
+#   source .venv/bin/activate
+#   uv pip install tensorrt-llm --extra-index-url https://pypi.nvidia.com
+#   uv pip install nvidia-modelopt[torch] --extra-index-url https://pypi.nvidia.com
+#   uv pip install nvidia-lm-eval --extra-index-url https://pypi.nvidia.com
+#   uv pip install math_verify
+#   pip install -r requirements.txt --extra-index-url https://pypi.nvidia.com
+
+absl-py==2.4.0
+accelerate==1.13.0
+aenum==3.1.17
+aiohappyeyeballs==2.6.1
+aiohttp==3.13.5
+aiosignal==1.4.0
+annotated-types==0.7.0
+anyio==4.13.0
+argcomplete==3.6.3
+attrs==26.1.0
+certifi==2026.2.25
+charset-normalizer==3.4.7
+click==8.3.2
+colorama==0.4.6
+datasets==4.8.4
+dill==0.3.8
+distro==1.9.0
+evaluate==0.4.6
+filelock==3.28.0
+fsspec==2024.12.0
+h11==0.16.0
+httpcore==1.0.9
+httpx==0.28.1
+huggingface_hub==0.36.2
+idna==3.11
+Jinja2==3.1.6
+joblib==1.5.3
+lm_eval==0.4.11
+MarkupSafe==3.0.3
+math-verify==0.9.0
+multiprocess==0.70.16
+nemo-evaluator==0.2.6
+nemo-evaluator-launcher==0.2.5
+nemo-toolkit==2.7.2
+networkx==3.6.1
+numpy==1.26.4
+nvidia-cublas-cu12==12.8.4.1
+nvidia-cuda-nvrtc-cu12==12.8.93
+nvidia-cuda-runtime-cu12==12.8.90
+nvidia-cudnn-cu12==9.10.2.21
+nvidia-cufft-cu12==11.3.3.83
+nvidia-curand-cu12==10.3.9.90
+nvidia-cusolver-cu12==11.7.3.90
+nvidia-cusparse-cu12==12.5.8.93
+nvidia-modelopt==0.43.0
+nvidia-nccl-cu12==2.27.5
+nvidia-nvjitlink-cu12==12.8.93
+nvidia_lm_eval==26.3
+nvidia_simple_evals==26.3
+openai==2.32.0
+packaging==25.0
+pandas==3.0.2
+pyarrow==23.0.1
+pydantic==2.13.1
+pydantic_core==2.46.1
+PyYAML==6.0.3
+requests==2.33.1
+safetensors==0.7.0
+scikit-learn==1.8.0
+scipy==1.17.1
+sentencepiece==0.2.1
+setuptools==82.0.1
+sympy==1.14.0
+tensorrt==10.14.1.48.post1
+tensorrt_llm==1.2.0
+torch==2.9.1
+torchvision==0.24.1
+tqdm==4.67.3
+transformers==4.57.3
+typing_extensions==4.15.0
+urllib3==2.6.3
+uvicorn==0.44.0
+wandb==0.24.2
+xxhash==3.6.0
+yaml==6.0.3
+zstandard==0.25.0
