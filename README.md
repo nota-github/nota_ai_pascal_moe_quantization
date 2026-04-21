@@ -15,6 +15,8 @@ Stage 3: Generate Synthetic Dataset
     ↓  (produces: synthetic calibration samples optimized for expert balance)
 ```
 
+> **Iterative refinement**: Repeat Stages 1–3 until the compound dataset (original + synthesized) achieves balanced expert activation across all layers.
+
 | Stage | Name | venv | Key Tool |
 |-------|------|------|----------|
 | 0 | Quantize initial model and evaluate on benchmark tasks | `quant_expert_analysis` | NVIDIA ModelOpt + TensorRT-LLM |
