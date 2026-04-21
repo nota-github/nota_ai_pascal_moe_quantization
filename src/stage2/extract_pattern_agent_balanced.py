@@ -1,3 +1,4 @@
+import argparse
 import os
 import json
 import numpy as np
@@ -8,12 +9,16 @@ from tqdm import tqdm
 
 load_dotenv()
 
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-REPO_ROOT = os.path.dirname(SCRIPT_DIR)
+parser = argparse.ArgumentParser(description="Stage 2: Extract text patterns causing frequent/scarce experts")
+parser.add_argument("--bracketed_jsonl", required=True, help="Path to bracketed_balance.jsonl from Stage 1")
+parser.add_argument("--output_dir", required=True, help="Directory to save per-domain guideline markdown files")
+parser.add_argument("--base_url", default="http://localhost:8000/v1", help="vLLM/NIM server base URL")
+parser.add_argument("--chat_model", default="nemotron-3-super", help="Chat model name served by the server")
+args = parser.parse_args()
 
 # 온프레미스 NIM (권장)
 client = OpenAI(
-    base_url="http://localhost:8000/v1",
+    base_url=args.base_url,
     api_key="no-key",  # 로컬에서는 인증 불필요
 )
 
@@ -23,14 +28,11 @@ client = OpenAI(
 #     api_key=os.environ["NVIDIA_API_KEY"],
 # )
 
-CHAT_MODEL = "nemotron-3-super"
+CHAT_MODEL = args.chat_model
 
 USE_STREAM = True  # False: 일반 응답, True: 스트리밍
 
-dataset_annotated = os.path.join(
-    REPO_ROOT, "stage_1_analyze_routing", "output",
-    "qwen3_30b_a3b_nemo_dataset", "D0_128", "s6_apply_bracket", "bracketed_balance.jsonl"
-)
+dataset_annotated = args.bracketed_jsonl
 
 DOMAINS = ['chat', 'code', 'stem', 'math']
 
@@ -85,7 +87,8 @@ for domain in DOMAINS:
     prompt += PROMPT_FOOTER
     prompts[domain] = prompt
 
-OUTPUT_DIR = os.path.join(SCRIPT_DIR, "instruction")
+OUTPUT_DIR = args.output_dir
+os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 def run_stream(prompt, enable_thinking=True):
     MAX_TOKENS = 100000

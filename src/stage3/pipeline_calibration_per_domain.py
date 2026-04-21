@@ -19,6 +19,7 @@ Output layout:
     calibration_q_sensitivity_all.parquet
 """
 
+import argparse
 import json
 import os
 import re
@@ -27,14 +28,19 @@ import traceback
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 
+# ─── CLI Arguments ────────────────────────────────────────────────────────────
+_parser = argparse.ArgumentParser(description="Stage 3: Generate synthetic calibration dataset")
+_parser.add_argument("--seed_data_path", required=True, help="Path to bracketed_balance.jsonl from Stage 1")
+_parser.add_argument("--instruction_dir", required=True, help="Directory with per-domain guideline files from Stage 2")
+_parser.add_argument("--output_root", required=True, help="Root directory for generated datasets")
+_parser.add_argument("--vllm_base_url", default="http://localhost:8000/v1", help="vLLM/NIM server base URL")
+_args = _parser.parse_args()
+
 # ─── Configuration ────────────────────────────────────────────────────────────
-SCRIPT_DIR      = os.path.dirname(os.path.abspath(__file__))
-REPO_ROOT       = os.path.dirname(SCRIPT_DIR)
-VLLM_BASE_URL   = "http://localhost:8000/v1"
-SEED_DATA_PATH  = os.path.join(REPO_ROOT, "stage_1_analyze_routing", "output",
-                               "qwen3_30b_a3b_nemo_dataset", "D0_128", "s6_apply_bracket", "bracketed_balance.jsonl")
-INSTRUCTION_DIR = os.path.join(REPO_ROOT, "stage_2_pattern_extract", "instruction")
-OUTPUT_ROOT     = os.path.join(SCRIPT_DIR, "output_per_domain")
+VLLM_BASE_URL   = _args.vllm_base_url
+SEED_DATA_PATH  = _args.seed_data_path
+INSTRUCTION_DIR = _args.instruction_dir
+OUTPUT_ROOT     = _args.output_root
 SLACK_WEBHOOK   = os.environ.get("SLACK_WEBHOOK_URL", "")  # set via env var or leave empty to disable
 
 DOMAINS                  = ["chat", "code", "math", "stem"]
