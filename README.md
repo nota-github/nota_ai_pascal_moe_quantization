@@ -7,11 +7,11 @@ A four-stage pipeline for quantizing Mixture-of-Experts (MoE) LLMs with expert-r
 ```
 Stage 0: Quantize initial model and evaluate on benchmark tasks
     ↓  (produces: calibration dataset, quantized checkpoint, benchmark results)
-Stage 1: Analyze Routing
+Stage 1: Analyze activated experts statistics from calibration data
     ↓  (produces: token routing maps, expert activation distributions, bracketed samples)
-Stage 2: Pattern Extract
+Stage 2: Extract text patterns causing frequent/scarce experts
     ↓  (produces: per-domain guidelines for sparse/dense expert activation)
-Stage 3: Generate Synthetic Dataset
+Stage 3: Generate synthetic calibration dataset achieving balanced activated experts
     ↓  (produces: synthetic calibration samples optimized for expert balance)
 ```
 
@@ -20,9 +20,9 @@ Stage 3: Generate Synthetic Dataset
 | Stage | Name | venv | Key Tool |
 |-------|------|------|----------|
 | 0 | Quantize initial model and evaluate on benchmark tasks | `quant_expert_analysis` | NVIDIA ModelOpt + TensorRT-LLM |
-| 1 | Analyze Routing | `quant_expert_analysis` | PyTorch + Transformers |
-| 2 | Pattern Extract | `nemo_data_designer` | OpenAI-compatible API (NIM/vLLM) |
-| 3 | Generate Synthetic Dataset | `nemo_data_designer` | NVIDIA Data Designer + vLLM |
+| 1 | Analyze activated experts statistics from calibration data | `quant_expert_analysis` | PyTorch + Transformers |
+| 2 | Extract text patterns causing frequent/scarce experts | `nemo_data_designer` | OpenAI-compatible API (NIM/vLLM) |
+| 3 | Generate synthetic calibration dataset achieving balanced activated experts | `nemo_data_designer` | NVIDIA Data Designer + vLLM |
 
 ---
 
@@ -108,7 +108,7 @@ bash run_pipeline.sh
 
 ---
 
-## Stage 1: Analyze Routing
+## Stage 1: Analyze activated experts statistics from calibration data
 
 **Directory**: `stage_1_analyze_routing/`  
 **Virtual environment**: `quant_expert_analysis` (same as Stage 0)  
@@ -196,7 +196,7 @@ bash run_pipeline.sh 4   # step6: apply <red>/<blue> brackets
 
 ---
 
-## Stage 2: Pattern Extract
+## Stage 2: Extract text patterns causing frequent/scarce experts
 
 **Directory**: `stage_2_pattern_extract/`  
 **Virtual environment**: `nemo_data_designer`  
@@ -268,7 +268,7 @@ stage_2_pattern_extract/instruction/
 
 ---
 
-## Stage 3: Generate Synthetic Dataset
+## Stage 3: Generate synthetic calibration dataset achieving balanced activated experts
 
 **Directory**: `stage_3_generate_dataset/`  
 **Virtual environment**: `nemo_data_designer` (same as Stage 2)  
