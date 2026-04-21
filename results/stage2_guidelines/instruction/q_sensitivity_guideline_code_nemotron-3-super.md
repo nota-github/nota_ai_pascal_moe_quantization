@@ -1,0 +1,6 @@
+1. Include rare, domain‑specific identifiers or function names that appear infrequently in the corpus; these tend to trigger the sensitive experts.  
+2. Avoid high‑frequency tokens such as punctuation, common keywords (if, for, return) and generic variable names (i, j, tmp) which strongly activate the non‑sensitive experts.  
+3. Favor longer, multi‑token constructs (e.g., descriptive method calls, chained attribute accesses) because they increase the chance of hitting sensitive‑expert patterns while diluting non‑sensitive token density.  
+4. Place sensitive tokens in varied syntactic positions (e.g., as part of a comment, string literal, or decorator) rather than only in ordinary statement positions, to diversify the contextual cues that the sensitive experts have learned.  
+5. Minimize repetition of the same non‑sensitive token within a short window; instead intersperse them with rare tokens to lower the overall activation of the non‑sensitive experts.  
+6. When possible, embed sensitive tokens inside less‑common control‑flow patterns (e.g., try/except, with‑statement, list comprehensions) that are sparsely represented in the training data.
