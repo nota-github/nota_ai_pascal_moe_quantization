@@ -5,7 +5,7 @@ A four-stage pipeline for quantizing Mixture-of-Experts (MoE) LLMs with expert-r
 ## Overview
 
 ```
-Stage 0: Quantize Initial Model
+Stage 0: Quantize initial model and evaluate on benchmark tasks
     ↓  (produces: calibration dataset, quantized checkpoint, benchmark results)
 Stage 1: Analyze Routing
     ↓  (produces: token routing maps, expert activation distributions, bracketed samples)
@@ -17,7 +17,7 @@ Stage 3: Generate Synthetic Dataset
 
 | Stage | Name | venv | Key Tool |
 |-------|------|------|----------|
-| 0 | Quantize Initial Model | `quant_expert_analysis` | NVIDIA ModelOpt + TensorRT-LLM |
+| 0 | Quantize initial model and evaluate on benchmark tasks | `quant_expert_analysis` | NVIDIA ModelOpt + TensorRT-LLM |
 | 1 | Analyze Routing | `quant_expert_analysis` | PyTorch + Transformers |
 | 2 | Pattern Extract | `nemo_data_designer` | OpenAI-compatible API (NIM/vLLM) |
 | 3 | Generate Synthetic Dataset | `nemo_data_designer` | NVIDIA Data Designer + vLLM |
@@ -34,7 +34,7 @@ Stage 3: Generate Synthetic Dataset
 
 ---
 
-## Stage 0: Quantize Initial Model
+## Stage 0: Quantize initial model and evaluate on benchmark tasks
 
 **Directory**: `stage_0_quantize/`  
 **Virtual environment**: `quant_expert_analysis`  
