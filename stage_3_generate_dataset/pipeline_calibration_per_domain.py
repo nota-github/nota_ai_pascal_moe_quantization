@@ -28,11 +28,13 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 
 # ─── Configuration ────────────────────────────────────────────────────────────
-BASE_DIR        = "/home/work/nota-data/gmkim/Nemotron-data-designer"
+SCRIPT_DIR      = os.path.dirname(os.path.abspath(__file__))
+REPO_ROOT       = os.path.dirname(SCRIPT_DIR)
 VLLM_BASE_URL   = "http://localhost:8000/v1"
-SEED_DATA_PATH  = f"{BASE_DIR}/seed_data/bracketed_balance.jsonl"
-INSTRUCTION_DIR = f"{BASE_DIR}/instruction"
-OUTPUT_ROOT     = f"{BASE_DIR}/output_per_domain"
+SEED_DATA_PATH  = os.path.join(REPO_ROOT, "stage_1_analyze_routing", "output",
+                               "qwen3_30b_a3b_nemo_dataset", "D0_128", "s6_apply_bracket", "bracketed_balance.jsonl")
+INSTRUCTION_DIR = os.path.join(REPO_ROOT, "stage_2_pattern_extract", "instruction")
+OUTPUT_ROOT     = os.path.join(SCRIPT_DIR, "output_per_domain")
 SLACK_WEBHOOK   = os.environ.get("SLACK_WEBHOOK_URL", "")  # set via env var or leave empty to disable
 
 DOMAINS                  = ["chat", "code", "math", "stem"]

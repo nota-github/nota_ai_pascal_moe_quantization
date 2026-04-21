@@ -6,7 +6,7 @@ STAGE="0"
 NUM_SAMPLES=128
 CALIB_SIZE=$NUM_SAMPLES
 
-MODEL_BASE_PATH="/home/work/nota-data/ghlee/storage/base_model"
+MODEL_BASE_PATH="/your_base_model_path"   # <-- set this to your local model directory
 MODEL_NAME="qwen3_30b_a3b"
 MODEL_PATH="${MODEL_BASE_PATH}/${MODEL_NAME}"
 
@@ -17,9 +17,12 @@ MAX_LENGTH=2048
 
 DATASET_ID="nemo_dataset" # nemo_dataset, custom
 
-DATASET_DIR="/home/work/nota-data/ghlee/nemo_hack/quant_pipe/dataset_dir/D${STAGE}_${CALIB_SIZE}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 
-SAVE_BASE_PATH="/home/work/nota-data/ghlee/nemo_hack/expert_balance/save_dir/"
+DATASET_DIR="${REPO_ROOT}/stage_0_quantize/dataset_dir/D${STAGE}_${CALIB_SIZE}"
+
+SAVE_BASE_PATH="${SCRIPT_DIR}/output"
 SAVE_PATH="${SAVE_BASE_PATH}/${MODEL_NAME}_${DATASET_ID}/D${STAGE}_${CALIB_SIZE}"
 
 LOG_BASE_DIR="${SAVE_PATH}/log/"

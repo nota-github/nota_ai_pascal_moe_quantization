@@ -33,20 +33,20 @@ mkdir -p $DATASET_DIR
 
 
 Q_MODEL_NAME="Q${STAGE}_${CALIB_SIZE}-${MODEL_NAME}-${QUANTIZE}"
-QUANT_BASE="../../models/q_models"
+QUANT_BASE="../models/q_models"
 QUANT_DIR="$QUANT_BASE/$Q_MODEL_NAME"
 MAX_INPUT_LENGTH=5120
 MAX_OUTPUT_LENGTH=6144
-ENGINE_BASE="../../models/trt_engines"
-ENGINE_DIR="$ENGINE_BASE/${Q_MODEL_NAME}_${MAX_INPUT_LENGTH}_${MAX_OUTPUT_LENGTH}"                    # TRT-LLM 엔진 저장
+ENGINE_BASE="../models/trt_engines"
+ENGINE_DIR="$ENGINE_BASE/${Q_MODEL_NAME}_${MAX_INPUT_LENGTH}_${MAX_OUTPUT_LENGTH}"                    # TRT-LLM engine directory
 # TRT-LLM Server uses the engine folder basename as the model id for /v1/models → step3 --model_name must match.
 API_MODEL_NAME="$(basename "$ENGINE_DIR")"
 #EVAL_MODE="nel_core" # nel_core, lm_eval
 EVAL_MODE="lm_eval"
 # step3: fewshot_cot = GSM8K·GPQA Diamond·MMLU-Pro few-shot CoT (mode-specific registered names). Or comma-separated list.
 TASKS="fewshot_cot" # fewshot_cot, fewshot_cot_basic
-RESULTS_DIR="../../eval_results/${Q_MODEL_NAME}_${MAX_INPUT_LENGTH}_${MAX_OUTPUT_LENGTH}/${EVAL_MODE}_${TASKS}"                 # 벤치마크 결과
-LOG_DIR="../../log/${Q_MODEL_NAME}_${MAX_INPUT_LENGTH}_${MAX_OUTPUT_LENGTH}_${EVAL_MODE}_${TASKS}"
+RESULTS_DIR="../eval_results/${Q_MODEL_NAME}_${MAX_INPUT_LENGTH}_${MAX_OUTPUT_LENGTH}/${EVAL_MODE}_${TASKS}"                 # benchmark results
+LOG_DIR="../log/${Q_MODEL_NAME}_${MAX_INPUT_LENGTH}_${MAX_OUTPUT_LENGTH}_${EVAL_MODE}_${TASKS}"
 
 
 

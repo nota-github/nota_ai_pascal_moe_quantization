@@ -8,6 +8,9 @@ from tqdm import tqdm
 
 load_dotenv()
 
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+REPO_ROOT = os.path.dirname(SCRIPT_DIR)
+
 # 온프레미스 NIM (권장)
 client = OpenAI(
     base_url="http://localhost:8000/v1",
@@ -24,8 +27,10 @@ CHAT_MODEL = "nemotron-3-super"
 
 USE_STREAM = True  # False: 일반 응답, True: 스트리밍
 
-#dataset_annotated = "bracketed_balance.jsonl"
-dataset_annotated = "/home/work/nota-data/nemo_hackathon/expert_analysis/qwen3_30b_a3b_nemo_dataset/D0_128/s6_apply_bracket/bracketed_balance.jsonl"
+dataset_annotated = os.path.join(
+    REPO_ROOT, "stage_1_analyze_routing", "output",
+    "qwen3_30b_a3b_nemo_dataset", "D0_128", "s6_apply_bracket", "bracketed_balance.jsonl"
+)
 
 DOMAINS = ['chat', 'code', 'stem', 'math']
 
@@ -80,7 +85,7 @@ for domain in DOMAINS:
     prompt += PROMPT_FOOTER
     prompts[domain] = prompt
 
-OUTPUT_DIR = "/home/work/nota-data/gmkim/Nemotron-data-designer/instruction"
+OUTPUT_DIR = os.path.join(SCRIPT_DIR, "instruction")
 
 def run_stream(prompt, enable_thinking=True):
     MAX_TOKENS = 100000

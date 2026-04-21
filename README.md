@@ -100,11 +100,11 @@ bash run_pipeline.sh
 
 | Path | Content |
 |------|---------|
-| `dataset_dir/D0_128/` | Calibration dataset (Arrow, JSONL, Hessians) |
-| `../../models/q_models/<Q_MODEL_NAME>/` | Quantized TRT-LLM checkpoint |
-| `../../models/trt_engines/<ENGINE_NAME>/` | TensorRT-LLM engine |
-| `../../eval_results/` | Benchmark results (JSON) |
-| `../../log/` | Step-by-step execution logs |
+| `stage_0_quantize/dataset_dir/D0_128/` | Calibration dataset (Arrow, JSONL, Hessians) |
+| `models/q_models/<Q_MODEL_NAME>/` | Quantized TRT-LLM checkpoint |
+| `models/trt_engines/<ENGINE_NAME>/` | TensorRT-LLM engine |
+| `eval_results/` | Benchmark results (JSON) |
+| `log/` | Step-by-step execution logs |
 
 ---
 
@@ -146,9 +146,11 @@ CALIB_SIZE=$NUM_SAMPLES
 MODEL_BASE_PATH="/your_base_model_path"   # <-- set this
 MODEL_NAME="qwen3_30b_a3b"
 
-DATASET_DIR="/path/to/dataset_dir/D${STAGE}_${CALIB_SIZE}"  # <-- calibration dataset from Stage 0
+# Automatically points to Stage 0 output inside the repo
+DATASET_DIR="${REPO_ROOT}/stage_0_quantize/dataset_dir/D${STAGE}_${CALIB_SIZE}"
 
-SAVE_BASE_PATH="/your/save/base/path"     # <-- output root directory
+# Outputs are saved inside stage_1_analyze_routing/output/
+SAVE_BASE_PATH="${SCRIPT_DIR}/output"
 
 # Expert thresholds (tuned per run 2)
 freq_thr=0.25
@@ -186,11 +188,11 @@ bash run_pipeline.sh 4   # step6: apply <red>/<blue> brackets
 
 | Path | Content |
 |------|---------|
-| `<SAVE_PATH>/s2_expert_count/token_routing.jsonl` | Per-token expert routing data |
-| `<SAVE_PATH>/s3_expert_dist/` | Expert activation distribution plots and JSON |
-| `<SAVE_PATH>/s4_weight_outlier/` | Weight sensitivity plots and JSON |
-| `<SAVE_PATH>/s5_sorted_token/` | Token classification scatter plots and JSON |
-| `<SAVE_PATH>/s6_apply_bracket/bracketed_balance.jsonl` | Annotated samples with `<red>`/`<blue>` tags (input to Stage 2) |
+| `stage_1_analyze_routing/output/<MODEL>_<DATASET>/D0_128/s2_expert_count/token_routing.jsonl` | Per-token expert routing data |
+| `stage_1_analyze_routing/output/<MODEL>_<DATASET>/D0_128/s3_expert_dist/` | Expert activation distribution plots and JSON |
+| `stage_1_analyze_routing/output/<MODEL>_<DATASET>/D0_128/s4_weight_outlier/` | Weight sensitivity plots and JSON |
+| `stage_1_analyze_routing/output/<MODEL>_<DATASET>/D0_128/s5_sorted_token/` | Token classification scatter plots and JSON |
+| `stage_1_analyze_routing/output/<MODEL>_<DATASET>/D0_128/s6_apply_bracket/bracketed_balance.jsonl` | Annotated samples with `<red>`/`<blue>` tags (input to Stage 2) |
 
 ---
 
@@ -227,7 +229,7 @@ pip install -r stage_2_pattern_extract/requirements.txt
 
 ### Configuration
 
-Edit the top of `stage_2_pattern_extract/extract_pattern_agent_balanced.py`:
+All paths are derived automatically from the script location. Only the server URL and model name need to be adjusted if needed:
 
 ```python
 # On-premise NIM (default)
@@ -235,12 +237,13 @@ client = OpenAI(
     base_url="http://localhost:8000/v1",
     api_key="no-key",
 )
+CHAT_MODEL = "nemotron-3-super"
 
-# Set path to bracketed samples from Stage 1
-dataset_annotated = "/path/to/bracketed_balance.jsonl"
+# Input: automatically resolved to Stage 1 output inside the repo
+# dataset_annotated = <repo_root>/stage_1_analyze_routing/output/qwen3_30b_a3b_nemo_dataset/D0_128/s6_apply_bracket/bracketed_balance.jsonl
 
-# Set output directory for guidelines
-OUTPUT_DIR = "/path/to/output/instruction"
+# Output: saved inside stage_2_pattern_extract/instruction/
+# OUTPUT_DIR = <stage_2_pattern_extract>/instruction/
 ```
 
 ### Run
@@ -253,10 +256,10 @@ python extract_pattern_agent_balanced.py
 
 ### Output
 
-Per-domain guideline markdown files saved to `OUTPUT_DIR`:
+Per-domain guideline markdown files saved to `stage_2_pattern_extract/instruction/`:
 
 ```
-instruction/
+stage_2_pattern_extract/instruction/
   balance_guideline_chat_nemotron-3-super.md
   balance_guideline_code_nemotron-3-super.md
   balance_guideline_stem_nemotron-3-super.md
@@ -301,14 +304,17 @@ pip install -r stage_3_generate_dataset/requirements.txt
 
 ### Configuration
 
-Edit the configuration section at the top of `stage_3_generate_dataset/pipeline_calibration_per_domain.py`:
+All paths are derived automatically from the script location. Only the server URL and generation parameters need to be adjusted:
 
 ```python
-BASE_DIR        = "/path/to/Nemotron-data-designer"  # <-- set this
-VLLM_BASE_URL   = "http://localhost:8000/v1"          # <-- vLLM server URL
-SEED_DATA_PATH  = f"{BASE_DIR}/seed_data/bracketed_balance.jsonl"  # from Stage 1
-INSTRUCTION_DIR = f"{BASE_DIR}/instruction"           # guideline files from Stage 2
-OUTPUT_ROOT     = f"{BASE_DIR}/output_per_domain"     # output directory
+VLLM_BASE_URL   = "http://localhost:8000/v1"  # <-- vLLM server URL
+
+# Input: automatically resolved inside the repo
+# SEED_DATA_PATH  = <repo_root>/stage_1_analyze_routing/output/qwen3_30b_a3b_nemo_dataset/D0_128/s6_apply_bracket/bracketed_balance.jsonl
+# INSTRUCTION_DIR = <repo_root>/stage_2_pattern_extract/instruction/
+
+# Output: saved inside stage_3_generate_dataset/output_per_domain/
+# OUTPUT_ROOT = <stage_3_generate_dataset>/output_per_domain/
 
 NUM_RECORDS_PER_COMBO    = 256   # oversample count (expect ~50% valid rate)
 TARGET_RECORDS_PER_COMBO = 128   # final target records per combo
@@ -316,10 +322,10 @@ MAX_PARALLEL_REQUESTS    = 16    # parallel requests per combo
 MAX_WORKERS              = 8     # parallel combos
 ```
 
-Optionally configure a Slack webhook for progress notifications:
+Optionally configure a Slack webhook for progress notifications via environment variable:
 
-```python
-SLACK_WEBHOOK = "https://hooks.slack.com/services/..."  # or "" to disable
+```bash
+export SLACK_WEBHOOK_URL="https://hooks.slack.com/services/..."  # or leave unset to disable
 ```
 
 ### Run
@@ -333,7 +339,7 @@ python pipeline_calibration_per_domain.py
 ### Output
 
 ```
-output_per_domain/
+stage_3_generate_dataset/output_per_domain/
   balance/
     chat/   {chat_raw,clean,final}.{parquet,json}
     code/   ...
@@ -356,28 +362,30 @@ The final merged parquet files (`calibration_balance_all.parquet` and `calibrati
 
 ```
 Stage 0 output
-  └── dataset_dir/D0_128/
+  └── stage_0_quantize/dataset_dir/D0_128/
         ├── data-*.arrow          (HuggingFace dataset)
         ├── samples_text.jsonl    (raw text samples)
         └── calib_chunks.pt       (tokenized calibration chunks)
             │
             ▼
-Stage 1 input: DATASET_DIR → Stage 1 output: s6_apply_bracket/
-  └── bracketed_balance.jsonl    (samples with <red>/<blue> token tags)
-      │
-      ├──────────────────────────────────────┐
-      ▼                                      ▼
-Stage 2 input                          Stage 3 seed_data input
-  └── 30 samples per domain             └── bracketed_balance.jsonl
-      │
-      ▼
-Stage 2 output: instruction/
-  └── balance_guideline_{domain}_nemotron-3-super.md
-      │
-      ▼
-Stage 3 input: INSTRUCTION_DIR
-  └── output_per_domain/
-        └── calibration_{balance,q_sensitivity}_all.parquet
+Stage 1 input → Stage 1 output
+  └── stage_1_analyze_routing/output/qwen3_30b_a3b_nemo_dataset/D0_128/s6_apply_bracket/
+        └── bracketed_balance.jsonl    (samples with <red>/<blue> token tags)
+            │
+            ├──────────────────────────────────────┐
+            ▼                                      ▼
+    Stage 2 input                          Stage 3 seed input
+      └── 30 samples per domain             └── bracketed_balance.jsonl
+          │
+          ▼
+    Stage 2 output
+      └── stage_2_pattern_extract/instruction/
+            └── balance_guideline_{domain}_nemotron-3-super.md
+                │
+                ▼
+        Stage 3 input → Stage 3 output
+          └── stage_3_generate_dataset/output_per_domain/
+                └── calibration_{balance,q_sensitivity}_all.parquet
 ```
 
 ---
@@ -408,13 +416,19 @@ Stage 3 input: INSTRUCTION_DIR
 │   ├── step4_weight_outlier_dist.py     # Expert weight sensitivity
 │   ├── step5_sort_token_plot.py         # Token classification plots
 │   ├── step6_apply_bracket.py           # Apply <red>/<blue> token tags
-│   └── requirements.txt
+│   ├── requirements.txt
+│   └── output/                          # (generated) expert analysis results
 ├── stage_2_pattern_extract/
 │   ├── extract_pattern_agent_balanced.py  # LLM-based pattern extraction
-│   └── requirements.txt
-└── stage_3_generate_dataset/
-    ├── pipeline_calibration_per_domain.py  # Parallel synthetic data generation
-    └── requirements.txt
+│   ├── requirements.txt
+│   └── instruction/                     # (generated) per-domain guidelines
+├── stage_3_generate_dataset/
+│   ├── pipeline_calibration_per_domain.py  # Parallel synthetic data generation
+│   ├── requirements.txt
+│   └── output_per_domain/               # (generated) synthetic calibration datasets
+├── models/                              # (generated) quantized checkpoints & TRT engines
+├── eval_results/                        # (generated) benchmark results
+└── log/                                 # (generated) execution logs
 ```
 
 ---
@@ -422,6 +436,6 @@ Stage 3 input: INSTRUCTION_DIR
 ## Notes
 
 - **Calibration dataset**: The pipeline uses [nvidia/Nemotron-Post-Training-Dataset-v1](https://huggingface.co/datasets/nvidia/Nemotron-Post-Training-Dataset-v1) by default. Modify `step1_gptq_quantize.py` or `step1_dataset_load.py` to use a custom dataset.
-- **Model paths**: All absolute paths in `config.sh` and Python scripts must be updated to match your local environment before running.
+- **Model paths**: All input/output paths are resolved relative to the repository root. Only `MODEL_BASE_PATH` in `stage_1_analyze_routing/config.sh` and `stage_0_quantize/run_pipeline.sh` must be set to your local model directory.
 - **GPU memory**: Stage 0 (GPTQ) benefits from multi-GPU setup. Stage 1 (routing analysis) runs on a single GPU. Stages 2 & 3 are CPU-bound (API calls to a separately-served model).
 - **Stage 2 & 3 server**: Both stages require a running vLLM or NVIDIA NIM endpoint serving a reasoning-capable model (e.g., Nemotron-3-Super). The default endpoint is `http://localhost:8000/v1`.
