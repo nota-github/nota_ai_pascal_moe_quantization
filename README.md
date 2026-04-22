@@ -32,7 +32,7 @@ You can run the hosted PASCAL-MoE demo [here](https://capability-wichita-flight-
 
 You can review the entire execution process of the PASCAL-MoE pipeline here. While live execution is supported, the current video demonstrates the process by loading pre-recorded execution logs and results.
 
-<video src="https://github.com/nota-github/nota_ai_pascal_moe_quantization/releases/download/v1.0-demo/pascal_moe_run_video.mov" controls width="100%"></video>
+<video src="https://media.githubusercontent.com/media/nota-github/nota_ai_pascal_moe_quantization/main/pascal_moe_run_video.mov" controls width="100%"></video>
 
 ---
 
