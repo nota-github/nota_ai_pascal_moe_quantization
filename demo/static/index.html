@@ -695,11 +695,7 @@ function renderPhase3(data) {
   const totals = data.totals || {};
   const domList = ['chat', 'code', 'math', 'stem'];
 
-  const statsHtml = `
-    <div class="stats-row">
-      <div class="stat-box"><div class="stat-val" style="color:var(--c3)">${totals.balance ?? '?'}</div><div class="stat-lbl">Balance Samples</div></div>
-      <div class="stat-box"><div class="stat-val" style="color:var(--c3)">${totals.q_sensitivity ?? '?'}</div><div class="stat-lbl">Q-Sens Samples</div></div>
-    </div>`;
+  const statsHtml = '';
 
   const gtabsHtml = `
     <div class="subtabs" style="margin-bottom:12px;">
