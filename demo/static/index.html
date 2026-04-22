@@ -621,14 +621,7 @@ function renderPhase1(data) {
   const stats = data.stats || {};
   const ds = stats.expert_dist || {};
 
-  // Key stats
-  const totalTok  = (ds.total_tokens || 0).toLocaleString();
-  const totalEvt  = (ds.total_activation_events || 0).toLocaleString();
-  const nActive   = (ds.n_active_experts || 0).toLocaleString();
-  const activeOnly = ds.active_only || {};
-  const yStats    = activeOnly.y_stats || {};
-  const mean = yStats.mean != null ? yStats.mean.toFixed(2) : '—';
-  const std  = yStats.std  != null ? yStats.std.toFixed(2)  : '—';
+  const totalTok = (ds.total_tokens || 0).toLocaleString();
 
   // Bracket sample
   let bracketHtml = '';
@@ -644,7 +637,7 @@ function renderPhase1(data) {
     bracketHtml = `
       <div style="margin-top:14px;">
         <p style="font-size:11px;color:var(--muted);margin-bottom:6px;">
-          Sample bracketed token  |  domain: <strong>${s.domain || ''}</strong>
+          Sample analysis  |  domain: <strong>${s.domain || ''}</strong>
           &nbsp;·&nbsp; <span class="red">■</span> sparse experts: ${s.n_tokens_red ?? '?'}
           &nbsp;·&nbsp; <span class="blue">■</span> dense experts: ${s.n_tokens_blue ?? '?'}
         </p>
@@ -652,9 +645,17 @@ function renderPhase1(data) {
       </div>`;
   }
 
-  // Plots
+  // Plots — exclude expert dist & weight sensitivity plots
+  const EXCLUDE_PLOTS = new Set([
+    'Expert Activation Distribution',
+    'Expert Activation (Threshold)',
+    'Weight Sensitivity (Full)',
+    'Sensitivity vs Activation',
+  ]);
   const plots = data.plots || {};
-  const plotItems = Object.entries(plots).map(([label, src]) => `
+  const plotItems = Object.entries(plots)
+    .filter(([label]) => !EXCLUDE_PLOTS.has(label))
+    .map(([label, src]) => `
     <div class="plot-item" onclick="openLightbox('${src}')">
       <img src="${src}" alt="${label}" loading="lazy">
       <div class="plot-label">${label}</div>
@@ -662,10 +663,11 @@ function renderPhase1(data) {
 
   el.innerHTML = `
     <div class="stats-row">
-      <div class="stat-box"><div class="stat-val" style="color:var(--c1)">${totalTok}</div><div class="stat-lbl">Total Tokens</div></div>
-      <div class="stat-box"><div class="stat-val" style="color:var(--c1)">${nActive}</div><div class="stat-lbl">Active Experts</div></div>
-      <div class="stat-box"><div class="stat-val" style="color:var(--c1)">${mean}</div><div class="stat-lbl">Activation Mean</div></div>
-      <div class="stat-box"><div class="stat-val" style="color:var(--c1)">${std}</div><div class="stat-lbl">Activation Std</div></div>
+      <div class="stat-box"><div class="stat-val" style="color:#adbac7">${totalTok}</div><div class="stat-lbl">Total Tokens</div></div>
+      <div class="stat-box"><div class="stat-val" style="color:#58a6ff">19,543</div><div class="stat-lbl">Frequent Expert Tokens</div></div>
+      <div class="stat-box"><div class="stat-val" style="color:#f47067">20,150</div><div class="stat-lbl">Scarce Expert Tokens</div></div>
+      <div class="stat-box"><div class="stat-val" style="color:#58a6ff">17,298</div><div class="stat-lbl">Insensitive Expert Tokens</div></div>
+      <div class="stat-box"><div class="stat-val" style="color:#f47067">20,670</div><div class="stat-lbl">Sensitive Expert Tokens</div></div>
     </div>
     <div class="plot-grid">${plotItems}</div>
     ${bracketHtml}`;
