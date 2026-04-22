@@ -163,7 +163,7 @@
     <div class="title-badge">NVIDIA Nemotron Hackathon 2026</div>
   </div>
   <h1>MoE Quantization Calibration Pipeline</h1>
-  <p class="subtitle">Expert-routing-aware calibration data synthesis for GPTQ quantization of Mixture-of-Experts LLMs</p>
+  <p class="subtitle">Routing-aware calibration data synthesis for MoE LLM quantization</p>
 </header>
 
 <!-- Pipeline flow -->
@@ -443,26 +443,26 @@ const SIM_LOGS = {
   3: [
     {t:0,   c:'info',    l:'[Phase 3] Generate synthetic calibration dataset achieving balanced expert activation'},
     {t:300, c:'',        l:'Loading Phase 1 seed data and Phase 2 guidelines...'},
-    {t:600, c:'info',    l:'Launching 8 parallel generation tasks...'},
-    {t:900, c:'',        l:'  [balance/chat]        → Generating 128 samples...'},
-    {t:1000,c:'',        l:'  [balance/code]        → Generating 128 samples...'},
-    {t:1100,c:'',        l:'  [balance/math]        → Generating 128 samples...'},
-    {t:1200,c:'',        l:'  [balance/stem]        → Generating 128 samples...'},
-    {t:1300,c:'',        l:'  [q_sensitivity/chat]  → Generating 128 samples...'},
-    {t:1400,c:'',        l:'  [q_sensitivity/code]  → Generating 128 samples...'},
-    {t:1500,c:'',        l:'  [q_sensitivity/math]  → Generating 128 samples...'},
-    {t:1600,c:'',        l:'  [q_sensitivity/stem]  → Generating 128 samples...'},
-    {t:2400,c:'success', l:'  [balance/code]        → 128 samples complete ✓'},
-    {t:2800,c:'success', l:'  [q_sensitivity/chat]  → 128 samples complete ✓'},
-    {t:3200,c:'success', l:'  [balance/math]        → 128 samples complete ✓'},
-    {t:3600,c:'success', l:'  [q_sensitivity/code]  → 128 samples complete ✓'},
-    {t:4000,c:'success', l:'  [balance/stem]        → 128 samples complete ✓'},
-    {t:4400,c:'success', l:'  [q_sensitivity/math]  → 128 samples complete ✓'},
-    {t:4800,c:'success', l:'  [balance/chat]        → 128 samples complete ✓'},
-    {t:5200,c:'success', l:'  [q_sensitivity/stem]  → 128 samples complete ✓'},
+    {t:600, c:'info',    l:'Launching 8 parallel generation tasks (256 raw → target 128 valid each)...'},
+    {t:900, c:'',        l:'  [balance/chat]        → Generating...'},
+    {t:1000,c:'',        l:'  [balance/code]        → Generating...'},
+    {t:1100,c:'',        l:'  [balance/math]        → Generating...'},
+    {t:1200,c:'',        l:'  [balance/stem]        → Generating...'},
+    {t:1300,c:'',        l:'  [q_sensitivity/chat]  → Generating...'},
+    {t:1400,c:'',        l:'  [q_sensitivity/code]  → Generating...'},
+    {t:1500,c:'',        l:'  [q_sensitivity/math]  → Generating...'},
+    {t:1600,c:'',        l:'  [q_sensitivity/stem]  → Generating...'},
+    {t:2400,c:'success', l:'  [balance/code]        →  15 valid samples ✓'},
+    {t:2800,c:'success', l:'  [q_sensitivity/chat]  →   9 valid samples ✓'},
+    {t:3200,c:'success', l:'  [q_sensitivity/code]  →   8 valid samples ✓'},
+    {t:3600,c:'success', l:'  [q_sensitivity/math]  →   2 valid samples ✓'},
+    {t:4000,c:'success', l:'  [balance/math]        → 128 valid samples ✓'},
+    {t:4400,c:'success', l:'  [balance/stem]        → 128 valid samples ✓'},
+    {t:4800,c:'success', l:'  [balance/chat]        → 128 valid samples ✓'},
+    {t:5200,c:'success', l:'  [q_sensitivity/stem]  → 128 valid samples ✓'},
     {t:5500,c:'info',    l:'Merging datasets...'},
-    {t:5800,c:'success', l:'  → calibration_balance_all.parquet      (512 samples)'},
-    {t:6100,c:'success', l:'  → calibration_q_sensitivity_all.parquet (512 samples)'},
+    {t:5800,c:'success', l:'  → calibration_balance_all.parquet      (399 samples)'},
+    {t:6100,c:'success', l:'  → calibration_q_sensitivity_all.parquet (147 samples)'},
     {t:6400,c:'success', l:'[Phase 3 Complete] Datasets saved to results/phase3_dataset/output_per_domain/'},
   ],
 };
