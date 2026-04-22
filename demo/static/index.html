@@ -738,11 +738,9 @@ function renderPhase3(data) {
           ${domList.map((d,di) => {
             const samples = (data[gtype] && data[gtype][d]) ? data[gtype][d] : [];
             const cards = samples.map(s => {
-              const sys  = s.system_style ? escHtml(s.system_style).substring(0,120)+'…' : '';
               const body = escHtml((s.seed_augmentation || s.system_style || '')).substring(0,300);
               const qs   = '';
               return `<div class="sample-card">
-                <div class="sys">${sys}</div>
                 <div class="body">${body}</div>
                 <div class="sample-meta">
                   <span class="meta-tag">${d}</span>${qs}
