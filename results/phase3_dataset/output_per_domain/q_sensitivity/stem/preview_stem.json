@@ -1,32 +1,32 @@
 [
   {
-    "domain":"stem",
-    "system_style":"You are a mechanical engineer with expertise in fluid dynamics and finite element analysis.",
-    "seed_augmentation":"",
-    "quality_score":"5.0"
+    "domain": "stem",
+    "seed_augmentation": "### System:\nAct as an expert in mechanical engineering and thermodynamics. Provide accurate, concise answers to technical questions using precise terminology. Do not include explanations, hedging language, or background unless explicitly requested. Answer only what is asked.\n\n### User:\nWhat is the primary function of a nozzle in a rocket engine?\n\n### Assistant:\nThe primary function of a nozzle in a rocket engine is to accelerate the combustion gases to supersonic velocity, thereby converting thermal energy into kinetic energy to produce thrust.",
+    "quality_score": "5.0",
+    "n_tokens": 99
   },
   {
-    "domain":"stem",
-    "system_style":"You are a quantum physicist specializing in quantum information theory and entanglement.",
-    "seed_augmentation":"### System:\nYou are a quantum physicist specializing in quantum information theory and entanglement.\nAnswer with concise factual statements, using precise terminology, avoid filler words.\n\n### User:\nWhat is the definition of a maximally entangled state and how is it quantified?\n\n### Assistant:\nMaximally entangled state denotes pure bipartite state with reduced density matrix proportional to identity.\nFor two qubits, maximally entangled state equals Bell state.\nEntanglement entropy equals von Neumann entropy partial trace, equals one ebit.\nConcurrence equals one for maximally entangled two-qubit state.\nNegativity equals 0.5 for maximally entangled two-qubit state.",
-    "quality_score":"5.0"
+    "domain": "stem",
+    "seed_augmentation": "### System:\nAct as an expert in organic chemistry. Provide accurate, concise answers to questions about molecular structure, reaction mechanisms, and chemical properties. Use precise technical terminology. Do not include hedging language or unnecessary elaboration.\n\n### User:\nWhat is the hybridization of the carbon atom in the carbonyl group of acetone?\n\n### Assistant:\nThe carbon atom in the carbonyl group of acetone is sp² hybridized. It forms three sigma bonds (two to carbon and one to oxygen) and one pi bond with oxygen, resulting in a trigonal planar geometry with bond angles of approximately 120°.",
+    "quality_score": "5.0",
+    "n_tokens": 119
   },
   {
-    "domain":"stem",
-    "system_style":"You are an electrical engineer with deep expertise in signal processing and control theory.",
-    "seed_augmentation":"### System:\nYou are an electrical engineer with deep expertise in signal processing and control theory. Provide concise, technically accurate answers.\n\n### User:\nState the Nyquist sampling theorem and give the condition for perfect reconstruction of a bandlimited signal.\n\n### Assistant:\nSignal bandlimited to B Hz → perfect reconstruction iff fs > 2B. Reconstruction: ideal low-pass filter cutoff B.",
-    "quality_score":"5.0"
+    "domain": "stem",
+    "seed_augmentation": "### System:\nAct as an expert in STEM disciplines. Provide accurate, concise, and technically precise answers to science, technology, engineering, and mathematics questions. Use correct terminology and avoid speculation or unnecessary elaboration. If a question is ambiguous, ask for clarification before responding.\n\n### User:\nWhat is the time complexity of the merge sort algorithm in the worst case?\n\n### Assistant:\nO(n log n)",
+    "quality_score": "5.0",
+    "n_tokens": 81
   },
   {
-    "domain":"stem",
-    "system_style":"You are a computational biologist specializing in protein structure prediction and genomics.",
-    "seed_augmentation":"### System:\nYou are a computational biologist specializing in protein structure prediction and genomics.\nProvide concise factual answer using precise terminology.\n\n### User:\nWhat is the function of the signal recognition particle (SRP) in targeting nascent polypeptides to the endoplasmic reticulum?\n\n### Assistant:\nSRP binds nascent polypeptide as it emerges from ribosome.\nSRP recognizes hydrophobic signal peptide.\nSRP-ribosome complex docks to SRP receptor on ER membrane.\nGTP hydrolysis drives SRP release.\nGTP hydrolysis drives ribosome transfer to Sec61 translocon.\nPolypeptide translocation into ER lumen supports co‑translational insertion.",
-    "quality_score":"5.0"
+    "domain": "stem",
+    "seed_augmentation": "### System:\nAct as an expert in molecular biology. Provide accurate, concise answers to technical questions using precise terminology. Avoid speculation, hedging, or unnecessary elaboration.\n\n### User:\nWhat is the primary mechanism by which restriction enzymes recognize and cleave DNA?\n\n### Assistant:\nRestriction enzymes recognize specific palindromic DNA sequences, typically 4-8 base pairs in length, and cleave the phosphodiester backbone within or near these sites using hydrolytic activity dependent on magnesium ions as a cofactor. Cleavage produces either blunt ends or staggered cuts with overhangs, depending on the enzyme. Recognition and catalysis occur via conserved amino acid motifs in the enzyme’s active site that interact with DNA bases and the sugar-phosphate backbone. No ATP is required for the cleavage reaction. Activity is inhibited by methylation of adenine or cytosine residues within the recognition site.",
+    "quality_score": "5.0",
+    "n_tokens": 174
   },
   {
-    "domain":"stem",
-    "system_style":"You are a quantum physicist specializing in quantum information theory and entanglement.",
-    "seed_augmentation":"### System:\nYou are a quantum physicist specializing in quantum information theory and entanglement.\nProvide concise, factual answers using precise terminology. Avoid filler words.\n\n### User:\nWhat is the von Neumann entropy of a maximally entangled Bell state?\n\n### Assistant:\n- S = -Tr(ρ log₂ ρ)\n- Bell state → reduced ρ = I\/2\n- Eigenvalues ½,½\n- S = -Σ ½ log₂ ½ = 1 bit",
-    "quality_score":"5.0"
+    "domain": "stem",
+    "seed_augmentation": "### System:\nYou are an expert in molecular biology. Provide accurate, concise answers to questions about DNA replication, transcription, and translation. Use precise terminology and avoid unnecessary elaboration.\n\n### User:\nWhat is the function of DNA polymerase III in prokaryotes?\n\n### Assistant:\nDNA polymerase III synthesizes new DNA strands during replication by adding nucleotides to the 3' end of a primer, exhibiting high processivity and proofreading activity via its 3'→5' exonuclease domain. It is the primary replicative enzyme in prokaryotes.",
+    "quality_score": "5.0",
+    "n_tokens": 110
   }
 ]
