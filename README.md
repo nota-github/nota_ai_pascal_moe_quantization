@@ -32,7 +32,7 @@ You can run the hosted PASCAL-MoE demo [here](https://capability-wichita-flight-
 
 You can review the entire execution process of the PASCAL-MoE pipeline here. While live execution is supported, the current video demonstrates the process by loading pre-recorded execution logs and results.
 
-[![Demo Video](https://img.youtube.com/vi/JSvh-S27M8k/maxresdefault.jpg)](https://youtube.com/shorts/JSvh-S27M8k?feature=share)
+<video src="https://github.com/user-attachments/assets/fa61cd07-7c3d-4ebc-a74e-14660300b07d" controls width="100%"></video>
 
 ---
 
