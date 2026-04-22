@@ -239,8 +239,6 @@
             <span class="cfg-key">MODEL_NAME</span><span class="cfg-val">qwen3_30b_a3b</span>
             <span class="cfg-key">QUANTIZE</span><span class="cfg-val">GPTQ_W4A16</span>
             <span class="cfg-key">CALIB_SIZE</span><span class="cfg-val">128</span>
-            <span class="cfg-key">FULL_GPU_DEVICES</span><span class="cfg-val">0,1,2,3,4,5,6,7</span>
-            <span class="cfg-key">TARGET_GPU_DEVICES</span><span class="cfg-val">7</span>
           </div>
           <div class="output-tree">
 model/<br>
@@ -248,6 +246,14 @@ model/<br>
 ├── quantized/qwen3_30b_a3b_gptq_w4a16/    ← quantized checkpoint<br>
 ├── trt_engine/    ← TensorRT-LLM engine<br>
 └── eval_results/    ← GSM8K · GPQA Diamond · MMLU-Pro
+          </div>
+          <div style="margin-top:14px;">
+            <p style="font-size:11px;color:var(--muted);margin-bottom:8px;">NeMo Evaluator Benchmark Results</p>
+            <div class="config-grid">
+              <span class="cfg-key">GSM8K</span><span class="cfg-val">67.25%</span>
+              <span class="cfg-key">GPQA Diamond</span><span class="cfg-val">22.73%</span>
+              <span class="cfg-key">MMLU-Pro</span><span class="cfg-val">38.29%</span>
+            </div>
           </div>
         </div>
       </div>
