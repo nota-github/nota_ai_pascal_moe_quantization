@@ -26,11 +26,13 @@ Stage 3: Generate synthetic calibration dataset achieving balanced activated exp
 
 ---
 
-## Demo Video
+## Demo
+
+You can run the hosted PASCAL-MoE demo [here](https://capability-wichita-flight-demonstrated.trycloudflare.com/).
 
 You can review the entire execution process of the PASCAL-MoE pipeline here. While live execution is supported, the current video demonstrates the process by loading pre-recorded execution logs and results.
 
-<video src="pascal_moe_run_video.mov" controls width="100%"></video>
+<video src="https://github.com/nota-github/nota_ai_pascal_moe_quantization/releases/download/v1.0-demo/pascal_moe_run_video.mov" controls width="100%"></video>
 
 ---
 
