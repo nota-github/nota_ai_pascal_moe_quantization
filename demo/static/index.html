@@ -512,16 +512,17 @@ function scrollToPhase(phase) {
   document.getElementById(`card-${phase}`).scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-// ── Live run (SSE) ────────────────────────────────────────────────────────────
+// ── Live run (WebSocket) ──────────────────────────────────────────────────────
 function runLive(phase) {
   clearLog(phase);
   setStatus(phase, 'running', 'RUNNING');
   setButtonState(phase, true);
 
-  const es = new EventSource(`/api/run/${phase}/stream`);
-  state.eventSources[phase] = es;
+  const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+  const ws = new WebSocket(`${proto}://${location.host}/ws/run/${phase}`);
+  state.eventSources[phase] = ws;
 
-  es.onmessage = (e) => {
+  ws.onmessage = (e) => {
     const msg = JSON.parse(e.data);
     if (msg.line !== undefined) {
       appendLog(phase, msg.line);
@@ -530,23 +531,30 @@ function runLive(phase) {
       setStatus(phase, ok ? 'done' : 'error', ok ? 'DONE' : 'ERROR');
       appendLog(phase, ok ? '✓ Process exited 0' : `✗ Exit code ${msg.returncode}`, ok ? 'success' : 'error');
       setButtonState(phase, false);
-      es.close();
+      ws.close();
     } else if (msg.error) {
       appendLog(phase, `Error: ${msg.error}`, 'error');
       setStatus(phase, 'error', 'ERROR');
       setButtonState(phase, false);
-      es.close();
+      ws.close();
     }
   };
-  es.onerror = () => {
+  ws.onerror = () => {
     setStatus(phase, 'error', 'ERROR');
     setButtonState(phase, false);
-    es.close();
+  };
+  ws.onclose = (e) => {
+    if (e.code !== 1000 && e.code !== 1001) {
+      setStatus(phase, 'error', 'ERROR');
+      setButtonState(phase, false);
+    }
+    delete state.eventSources[phase];
   };
 }
 
 function stopRun(phase) {
-  if (state.eventSources[phase]) { state.eventSources[phase].close(); delete state.eventSources[phase]; }
+  const conn = state.eventSources[phase];
+  if (conn) { conn.close(); delete state.eventSources[phase]; }
   Object.values(state.simTimers[phase] || {}).forEach(clearTimeout);
   state.simTimers[phase] = {};
   setStatus(phase, 'idle', 'IDLE');

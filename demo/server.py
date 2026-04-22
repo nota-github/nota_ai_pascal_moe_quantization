@@ -4,7 +4,7 @@ import asyncio
 import json
 from pathlib import Path
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -103,34 +103,36 @@ async def phase3_results():
     return JSONResponse(data)
 
 
-# ── Live run SSE ──────────────────────────────────────────────────────────────
+# ── Live run WebSocket ────────────────────────────────────────────────────────
 
-@app.get("/api/run/{phase}/stream")
-async def run_phase_stream(phase: int, request: Request):
+@app.websocket("/ws/run/{phase}")
+async def run_phase_ws(phase: int, websocket: WebSocket):
+    await websocket.accept()
     script = REPO_ROOT / "scripts" / f"run_phase{phase}.sh"
-
-    async def generate():
+    proc = None
+    try:
+        proc = await asyncio.create_subprocess_exec(
+            "bash", str(script),
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.STDOUT,
+            cwd=str(REPO_ROOT),
+        )
+        assert proc.stdout is not None
+        async for raw in proc.stdout:
+            line = raw.decode("utf-8", errors="replace").rstrip()
+            await websocket.send_json({"line": line})
+        await proc.wait()
+        await websocket.send_json({"done": True, "returncode": proc.returncode})
+    except WebSocketDisconnect:
+        if proc and proc.returncode is None:
+            proc.kill()
+    except Exception as exc:
         try:
-            proc = await asyncio.create_subprocess_exec(
-                "bash", str(script),
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.STDOUT,
-                cwd=str(REPO_ROOT),
-            )
-            assert proc.stdout is not None
-            async for raw in proc.stdout:
-                if await request.is_disconnected():
-                    proc.kill()
-                    return
-                line = raw.decode("utf-8", errors="replace").rstrip()
-                yield f"data: {json.dumps({'line': line})}\n\n"
-            await proc.wait()
-            yield f"data: {json.dumps({'done': True, 'returncode': proc.returncode})}\n\n"
-        except Exception as exc:
-            yield f"data: {json.dumps({'error': str(exc)})}\n\n"
-
-    return StreamingResponse(
-        generate(),
-        media_type="text/event-stream",
-        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
-    )
+            await websocket.send_json({"error": str(exc)})
+        except Exception:
+            pass
+    finally:
+        try:
+            await websocket.close()
+        except Exception:
+            pass
