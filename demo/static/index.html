@@ -204,17 +204,14 @@
       <div class="phase-badge">0</div>
       <div class="card-title-block">
         <div class="card-title">Quantize initial model and evaluate on benchmark tasks</div>
-        <div class="card-desc">Compute GPTQ Hessians, apply W4A16 quantization, build TRT-LLM engine, run NeMo Evaluator benchmarks</div>
       </div>
       <span class="status-badge status-idle" id="status-0">IDLE</span>
     </div>
     <div class="io-row">
       <span class="io-label">IN</span>
       <span class="io-pill io-in">Base model checkpoint</span>
-      <span class="io-pill io-in">Nemotron Post-Training Dataset</span>
       <span class="io-label" style="margin-left:8px">OUT</span>
       <span class="io-pill io-out">Quantized checkpoint</span>
-      <span class="io-pill io-out">TRT-LLM engine</span>
       <span class="io-pill io-out">Benchmark results</span>
     </div>
     <div class="card-actions">
@@ -234,18 +231,9 @@
       </button>
       <div class="results-body" id="results-0">
         <div class="phase0-info">
-          <p style="color:var(--muted);font-size:12px;margin-bottom:12px;">Phase 0 produces large model artifacts stored under <code style="font-size:11px;background:var(--surface2);padding:1px 5px;border-radius:3px;">model/</code> (gitignored). Configuration and expected outputs are shown below.</p>
           <div class="config-grid">
-            <span class="cfg-key">MODEL_NAME</span><span class="cfg-val">qwen3_30b_a3b</span>
             <span class="cfg-key">QUANTIZE</span><span class="cfg-val">GPTQ_W4A16</span>
             <span class="cfg-key">CALIB_SIZE</span><span class="cfg-val">128</span>
-          </div>
-          <div class="output-tree">
-model/<br>
-├── calib_dataset/D0_128/    ← calibration samples + Hessians<br>
-├── quantized/qwen3_30b_a3b_gptq_w4a16/    ← quantized checkpoint<br>
-├── trt_engine/    ← TensorRT-LLM engine<br>
-└── eval_results/    ← GSM8K · GPQA Diamond · MMLU-Pro
           </div>
           <div style="margin-top:14px;">
             <p style="font-size:11px;color:var(--muted);margin-bottom:8px;">NeMo Evaluator Benchmark Results</p>
@@ -266,7 +254,6 @@ model/<br>
       <div class="phase-badge">1</div>
       <div class="card-title-block">
         <div class="card-title">Analyze activated experts statistics from calibration data</div>
-        <div class="card-desc">Forward-pass calibration samples; record token→expert routing; compute activation &amp; weight sensitivity distributions</div>
       </div>
       <span class="status-badge status-idle" id="status-1">IDLE</span>
     </div>
@@ -275,9 +262,7 @@ model/<br>
       <span class="io-pill io-in">Calibration dataset (D0_128)</span>
       <span class="io-pill io-in">Base model weights</span>
       <span class="io-label" style="margin-left:8px">OUT</span>
-      <span class="io-pill io-out">token_routing.jsonl</span>
-      <span class="io-pill io-out">Expert dist. plots</span>
-      <span class="io-pill io-out">bracketed_balance.jsonl</span>
+      <span class="io-pill io-out">Token-expert routing analysis</span>
     </div>
     <div class="card-actions">
       <button class="btn btn-live" id="live-btn-1" onclick="runLive(1)">▶ Run Live</button>
@@ -306,17 +291,15 @@ model/<br>
       <div class="phase-badge">2</div>
       <div class="card-title-block">
         <div class="card-title">Extract text patterns causing frequent/scarce expert activation</div>
-        <div class="card-desc">Feed &lt;red&gt;/&lt;blue&gt; annotated samples to Nemotron-3-Super; extract per-domain activation guidelines</div>
       </div>
       <span class="status-badge status-idle" id="status-2">IDLE</span>
     </div>
     <div class="io-row">
       <span class="io-label">IN</span>
-      <span class="io-pill io-in">bracketed_balance.jsonl</span>
+      <span class="io-pill io-in">Annotated token samples</span>
       <span class="io-pill io-in">Nemotron-3-Super (vLLM)</span>
       <span class="io-label" style="margin-left:8px">OUT</span>
-      <span class="io-pill io-out">balance_guideline_{domain}.md</span>
-      <span class="io-pill io-out">q_sensitivity_guideline_{domain}.md</span>
+      <span class="io-pill io-out">Per-domain guidelines</span>
     </div>
     <div class="card-actions">
       <button class="btn btn-live" id="live-btn-2" onclick="runLive(2)">▶ Run Live</button>
@@ -345,17 +328,14 @@ model/<br>
       <div class="phase-badge">3</div>
       <div class="card-title-block">
         <div class="card-title">Generate synthetic calibration dataset achieving balanced expert activation</div>
-        <div class="card-desc">8 parallel generation tasks (2 guideline types × 4 domains) using NVIDIA Data Designer + vLLM</div>
       </div>
       <span class="status-badge status-idle" id="status-3">IDLE</span>
     </div>
     <div class="io-row">
       <span class="io-label">IN</span>
-      <span class="io-pill io-in">balance/q_sensitivity guidelines</span>
-      <span class="io-pill io-in">Seed data (bracketed JSONL)</span>
+      <span class="io-pill io-in">Per-domain guidelines</span>
       <span class="io-label" style="margin-left:8px">OUT</span>
-      <span class="io-pill io-out">calibration_balance_all.parquet</span>
-      <span class="io-pill io-out">calibration_q_sensitivity_all.parquet</span>
+      <span class="io-pill io-out">Synthetic calibration dataset</span>
     </div>
     <div class="card-actions">
       <button class="btn btn-live" id="live-btn-3" onclick="runLive(3)">▶ Run Live</button>
@@ -705,9 +685,6 @@ function renderPhase2(data) {
   }).join('');
 
   el.innerHTML = `
-    <p style="font-size:11px;color:var(--muted);margin-bottom:10px;">
-      Guidelines generated by <strong>Nemotron-3-Super-120B</strong> with extended thinking (budget 8192 tokens).
-    </p>
     <div class="tabs" id="p2-tabs">${tabsHtml}</div>
     ${contentsHtml}`;
 }
