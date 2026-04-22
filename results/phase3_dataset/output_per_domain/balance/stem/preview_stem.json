@@ -1,37 +1,37 @@
 [
   {
     "domain": "stem",
-    "system_style": "You are a materials scientist with expertise in solid-state physics and crystal structure analysis.",
-    "seed_augmentation": "You are a materials scientist with expertise in solid-state physics and crystal structure analysis.\n\nssystem\nPlease integrate natural language reasoning with programs to solve the problem above, and put your final answer within \\boxed{{{{}}}}.\n-> User: Calculate the density of a face‑centered cubic crystal with lattice constant a = 4.05 Å and atomic weight 63.55 g/mol, assuming one atom per lattice point.\n-> Lattice constant a = 4.05 Å\n-> Number of atoms per unit cell (FCC) = 4\n-> Unit cell volume V = a³ = 6.64×10⁻²³ cm³\n-> Mass per unit cell m = (4 × 63.55 g/mol) / Nₐ = 4.22×10⁻²² g\n-> Density ρ = m / V = 6.35 g/cm³\n-> \\boxed{6.35\\ \\text{g/cm}^3}",
-    "quality_score": "5.0",
-    "n_tokens": 212
-  },
-  {
-    "domain": "stem",
     "system_style": "You are a quantum physicist specializing in quantum information theory and entanglement.",
-    "seed_augmentation": "You are a quantum physicist specializing in quantum information theory and entanglement.\n\nssystem\nPlease integrate natural language reasoning with programs to solve the problem above, and put your final answer within \\boxed{{{{}}}}.\n│\nuser\nGiven a two-qubit Werner state ρ_W = p|Ψ^-⟩⟨Ψ^-| + (1-p) I/4, compute the concurrence for p = 0.4.\n│\np = 0.4\n│\nConcurrence C = max{0, (3p - 1)/2}\n│\nC = max{0, (3*0.4 - 1)/2}\n│\nC = max{0, (1.2 - 1)/2}\n│\nC = max{0, 0.2/2}\n│\nC = max{0, 0.1}\n│\nC = 0.1\n│\nFinal answer: \\boxed{0.1}",
+    "seed_augmentation": "You are a quantum physicist specializing in quantum information theory and entanglement.\n\nssystem\nPlease integrate natural language reasoning with programs to solve the problem above, and put your final answer within \\boxed{{{{}}}}.\n<tool_call>\nConsider two qubits in the pure state  \n\\(|\\psi\\rangle = \\sqrt{0.3}\\,|00\\rangle + \\sqrt{0.7}\\,|11\\rangle\\).  \nCompute the von Neumann entanglement entropy of the reduced density matrix of the first qubit.\n<tool_call>\n-> State: |\\psi\\rangle = \\sqrt{0.3}\\,|00\\rangle + \\sqrt{0.7}\\,|11\\rangle\n<tool_call>\n-> Reduced density matrix \\rho_1 = \\operatorname{Tr}_2(|\\psi\\rangle\\langle\\psi|) = \\begin{pmatrix}0.3 & 0 \\\\ 0 & 0.7\\end{pmatrix}\n<tool_call>\n-> Eigenvalues of \\rho_1: \\lambda_1 = 0.3,\\ \\lambda_2 = 0.7\n<tool_call>\n-> Von Neumann entropy S = -\\sum_i \\lambda_i \\log_2 \\lambda_i = 0.881\\ \\text{bits}\n<tool_call>\n-> \\boxed{0.881\\ \\text{bits}}",
     "quality_score": "5.0",
-    "n_tokens": 209
-  },
-  {
-    "domain": "stem",
-    "system_style": "You are a neuroscientist specializing in computational models of neural circuits.",
-    "seed_augmentation": "You are a neuroscientist specializing in computational models of neural circuits.\n\nPlease integrate natural language reasoning with programs to solve the problem above, and put your final answer within \\boxed{{{{}}}}.\nA leaky integrate-and-fire neuron has a membrane capacitance of 200 pF and a leak conductance of 10 nS. Compute the membrane time constant τ in milliseconds.\nбайт\nC = 200e-12 F\ngL = 10e-9 S\ntau = C / gL\nбайт\ntau = 0.02 s\nбайт\ntau_ms = tau * 1000\nбайт\ntau_ms = 20.0 ms\n\\boxed{20.0\\text{ ms}}",
-    "quality_score": "5.0",
-    "n_tokens": 167
+    "n_tokens": 269
   },
   {
     "domain": "stem",
     "system_style": "You are a mechanical engineer with expertise in fluid dynamics and finite element analysis.",
-    "seed_augmentation": "You are a mechanical engineer with expertise in fluid dynamics and finite element analysis.\n\nssystem\nPlease integrate natural language reasoning with programs to solve the problem above, and put your final answer within \\boxed{{{{}}}}.\nser\nWater (density 998 kg/m³, dynamic viscosity 1.002×10⁻³ Pa·s) flows steadily in a smooth circular pipe of inner diameter 0.05 m with an average velocity of 2 m/s. Compute the Reynolds number and state whether the flow is laminar or turbulent.\nssistant\n→\nrho = 998.",
+    "seed_augmentation": "You are a mechanical engineer with expertise in fluid dynamics and finite element analysis.\n\nsystem\nPlease integrate natural language reasoning with programs to solve the problem above, and put your final answer within \\boxed{{{{}}}}.\nuser\nWater flows through a smooth circular pipe of diameter 0.05 m at a velocity of 2 m/s. The water density is 998 kg/m³ and the dynamic viscosity is 0.001 Pa·s. Compute the Reynolds number, determine the flow regime, calculate the Darcy friction factor using the Blasius correlation, and find the pressure drop per metre of pipe.\n-> Reynolds number: 9.98e4\n-> Flow regime: turbulent (Re > 4000)\n-> Darcy friction factor (Blasius): 0.0178\n-> Pressure drop per metre: 7.10e2 Pa/m\n-> \\boxed{Re\\approx9.98\\times10^4,\\; f\\approx0.0178,\\; \\Delta P/L\\approx7.10\\times10^2\\ \\text{Pa/m}}",
     "quality_score": "5.0",
-    "n_tokens": 132
+    "n_tokens": 240
+  },
+  {
+    "domain": "stem",
+    "system_style": "You are an astrophysicist with expertise in stellar evolution and cosmological simulations.",
+    "seed_augmentation": "You are an astrophysicist with expertise in stellar evolution and cosmological simulations.\n\nsystem\nPlease integrate natural language reasoning with programs to solve the problem above, and put your final answer within \\boxed{{{{}}}}.\nuser\nWhat is the main-sequence lifetime of a 12 M_sun star, assuming t_MS = 10^10 yr * (M/M_sun)^-2.5?\n-> Exponent: -2.5\n-> Base: 12\n-> Power: 12^-2.5 = 0.002001\n-> Multiply by 1e10 yr: 2.001e7 yr\n-> Convert to Myr: 20.01 Myr\n-> \\boxed{20.01\\text{ Myr}}",
+    "quality_score": "5.0",
+    "n_tokens": 177
   },
   {
     "domain": "stem",
     "system_style": "You are a chemical engineer specializing in reaction kinetics and thermodynamic process design.",
-    "seed_augmentation": "You are a chemical engineer specializing in reaction kinetics and thermodynamic process design.\n\nssystem\nPlease integrate natural language reasoning with programs to solve the problem above, and put your final answer within \\boxed{{{{}}}}.\n</think>\nuser\nThe decomposition of N₂O₅ follows first‑order kinetics with a rate constant k₁ = 2.5 × 10⁻³ s⁻¹ at 298 K. The activation energy is Eₐ = 103 kJ mol⁻¹. Calculate the rate constant k₂ at 350 K using the Arrhenius equation.\n\n</think>\n-> k1 = 2.5e-3 s^-1\n-> T1 = 298 K\n-> T2 = 350 K\n-> Ea = 103000 J/mol\n-> R = 8.314 J/(mol·K)\n-> exponent = Ea/R * (1/T1 - 1/T2)\n-> exponent = 6.176\n-> factor = exp(exponent)\n-> factor = 4.81e2\n-> k2 = k1 * factor\n-> k2 = 1.20 s^-1\n-> \\boxed{1.",
+    "seed_augmentation": "You are a chemical engineer specializing in reaction kinetics and thermodynamic process design.\n\nsystem\nPlease integrate natural language reasoning with programs to solve the problem above, and put your final answer within \\boxed{{{{}}}}.\nuser\nA first‑order irreversible reaction A → B occurs in a constant‑volume batch reactor. The rate constant follows the Arrhenius expression k = A·exp(−Ea/(RT)). Given pre‑exponential factor A = 2.5×10⁷ s⁻¹, activation energy Ea = 85 kJ·mol⁻¹, initial concentration CA0 = 2.0 mol·L⁻¹, and temperature T = 500 K, calculate the time required to achieve 90 % conversion of A.\nba\nPre‑exponential factor A = 2.5e7 s⁻¹\nActivation energy Ea = 85000 J·mol⁻¹\nTemperature T = 500 K\nGas constant R = 8.314 J·mol⁻¹·K⁻¹\nba\nRate constant k = A * exp(−Ea/(R·T))\nk = 0.0325 s⁻¹\nba\nDesired conversion X = 0.90\nFor first‑order kinetics: t = −ln(1−X)/k\nba\nt = −ln(0.10)/0.0325 s⁻¹\nt = 70.9 s\nba\n\\boxed{70.9\\text{ s}}",
     "quality_score": "5.0",
-    "n_tokens": 274
+    "n_tokens": 338
+  },
+  {
+    "domain": "stem",
+    "system_style": "You are an electrical engineer with deep expertise in signal processing and control theory.",
+    "seed_augmentation": "You are an electrical engineer with deep expertise in signal processing and control theory.\n\nssystem\nPlease integrate natural language reasoning with programs to solve the problem above, and put your final answer within \\boxed{{{{}}}}.\n usuarios\nGiven the transfer function H(s) = 10/(s^2+6s+25), determine the poles, damping ratio, natural frequency, percent overshoot, and settling time (2% criterion).\n</think>\n-> Poles: -3 + 4j, -3 - 4j\nNatural frequency ω_n = 5.0 rad/s\nDamping ratio ζ =",
+    "quality_score": "5.0",
+    "n_tokens": 125
   }
 ]
