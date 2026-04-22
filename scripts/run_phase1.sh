@@ -7,7 +7,11 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
-SRC_DIR="${REPO_ROOT}/src/stage1"
+SRC_DIR="${REPO_ROOT}/src/phase1"
+
+# ── Virtual environment ────────────────────────────────────
+VENV_DIR="/home/work/nota-data/nemo_hackathon/venv/quant_expert_analysis/.venv"
+source "${VENV_DIR}/bin/activate"
 
 # ── Configuration ──────────────────────────────────────────
 export CUDA_VISIBLE_DEVICES=4
@@ -16,7 +20,7 @@ STAGE="0"
 NUM_SAMPLES=128
 CALIB_SIZE=$NUM_SAMPLES
 
-MODEL_BASE_PATH="/your_base_model_path"   # <-- set this
+MODEL_BASE_PATH="/home/work/nota-data/ghlee/storage/base_model"
 MODEL_NAME="qwen3_30b_a3b"
 MODEL_PATH="${MODEL_BASE_PATH}/${MODEL_NAME}"
 
@@ -25,9 +29,9 @@ MIN_LENGTH=1024
 MAX_LENGTH=2048
 DATASET_ID="nemo_dataset"       # nemo_dataset | custom
 
-DATASET_DIR="${REPO_ROOT}/model/calib_dataset/D${STAGE}_${CALIB_SIZE}"
+DATASET_DIR="/home/work/nota-data/nemo_hackathon/datasets/D${STAGE}_${CALIB_SIZE}"
 
-SAVE_BASE_PATH="${REPO_ROOT}/results/stage1_routing"
+SAVE_BASE_PATH="${REPO_ROOT}/results/phase1_routing"
 SAVE_PATH="${SAVE_BASE_PATH}/${MODEL_NAME}_${DATASET_ID}/D${STAGE}_${CALIB_SIZE}"
 LOG_DIR="${SAVE_PATH}/log"
 mkdir -p "${LOG_DIR}"

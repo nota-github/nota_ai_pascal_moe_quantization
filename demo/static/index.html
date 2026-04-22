@@ -134,10 +134,14 @@
   /* Phase 3 sample cards */
   .sample-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 10px 14px; margin-bottom: 8px; }
   .sample-card .sys { font-size: 10px; color: var(--muted); margin-bottom: 6px; }
-  .sample-card .body { font-size: 11px; line-height: 1.6; max-height: 80px; overflow: hidden; position: relative; }
-  .sample-card .body::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 24px; background: linear-gradient(transparent, var(--surface2)); }
-  .sample-meta { display: flex; gap: 6px; margin-top: 6px; }
+  .sample-card .body { font-size: 11px; line-height: 1.6; max-height: 80px; overflow: hidden; position: relative; transition: max-height .3s ease; }
+  .sample-card .body::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 24px; background: linear-gradient(transparent, var(--surface2)); transition: opacity .2s; }
+  .sample-card.expanded .body { max-height: 2000px; }
+  .sample-card.expanded .body::after { opacity: 0; pointer-events: none; }
+  .sample-meta { display: flex; gap: 6px; margin-top: 6px; align-items: center; }
   .meta-tag { font-size: 10px; padding: 1px 6px; border-radius: 3px; background: var(--border); color: var(--muted); }
+  .expand-btn { margin-left: auto; font-size: 10px; color: var(--muted); background: transparent; border: 1px solid var(--border); border-radius: 3px; padding: 1px 7px; cursor: pointer; transition: color .15s, border-color .15s; }
+  .expand-btn:hover { color: var(--text); border-color: var(--muted); }
 
   /* image lightbox */
   .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.85); z-index: 1000; align-items: center; justify-content: center; cursor: zoom-out; }
@@ -156,7 +160,7 @@
 
 <header>
   <div class="title-row">
-    <div class="title-badge">NVIDIA NIM · Hackathon 2025</div>
+    <div class="title-badge">NVIDIA Nemotron Hackathon 2026</div>
   </div>
   <h1>MoE Quantization Calibration Pipeline</h1>
   <p class="subtitle">Expert-routing-aware calibration data synthesis for GPTQ quantization of Mixture-of-Experts LLMs</p>
@@ -716,11 +720,14 @@ function renderPhase3(data) {
             const cards = samples.map(s => {
               const sys  = s.system_style ? escHtml(s.system_style).substring(0,120)+'…' : '';
               const body = s.seed_augmentation ? escHtml(s.seed_augmentation).substring(0,300) : JSON.stringify(s).substring(0,200);
-              const qs   = s.quality_score != null ? `<span class="meta-tag">score: ${s.quality_score}</span>` : '';
+              const qs   = '';
               return `<div class="sample-card">
                 <div class="sys">${sys}</div>
                 <div class="body">${body}</div>
-                <div class="sample-meta"><span class="meta-tag">${d}</span>${qs}</div>
+                <div class="sample-meta">
+                  <span class="meta-tag">${d}</span>${qs}
+                  <button class="expand-btn" onclick="toggleSampleCard(this)">▼ expand</button>
+                </div>
               </div>`;
             }).join('') || '<p style="color:var(--muted);font-size:12px;">No preview data available.</p>';
             return `<div class="tab-content ${di===0?'active':''}" id="p3-dom-${gtype}-${d}">${cards}</div>`;
@@ -759,6 +766,13 @@ function closeLightbox() {
   document.getElementById('lightbox').classList.remove('open');
 }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+// ── Sample card expand ────────────────────────────────────────────────────────
+function toggleSampleCard(btn) {
+  const card = btn.closest('.sample-card');
+  const expanded = card.classList.toggle('expanded');
+  btn.textContent = expanded ? '▲ collapse' : '▼ expand';
+}
 
 // ── Util ──────────────────────────────────────────────────────────────────────
 function escHtml(s) {

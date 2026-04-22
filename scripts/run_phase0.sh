@@ -8,7 +8,11 @@ set -o pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
-SRC_DIR="${REPO_ROOT}/src/stage0"
+SRC_DIR="${REPO_ROOT}/src/phase0"
+
+# ── Virtual environment ────────────────────────────────────
+VENV_DIR="/home/work/nota-data/nemo_hackathon/venv/quant_expert_analysis/.venv"
+source "${VENV_DIR}/bin/activate"
 
 # ── Configuration ──────────────────────────────────────────
 STAGE="0"
@@ -26,7 +30,7 @@ export OPENAI_API_KEY="${OPENAI_API_KEY:-local-dummy}"
 export NUMEXPR_MAX_THREADS="${NUMEXPR_MAX_THREADS:-128}"
 
 MODEL_NAME="qwen3_30b_a3b"
-MODEL_BASE_PATH="/your_base_model_path"   # <-- set this
+MODEL_BASE_PATH="/home/work/nota-data/ghlee/storage/base_model"
 MODEL="${MODEL_BASE_PATH}/${MODEL_NAME}"
 
 CALIB_DATASET_DIR="${REPO_ROOT}/model/calib_dataset/D${STAGE}_${CALIB_SIZE}"

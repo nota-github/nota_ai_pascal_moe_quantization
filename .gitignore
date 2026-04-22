@@ -1,5 +1,8 @@
 # Generated outputs — large files, not tracked
 model/
+artifacts/
+# Large intermediate routing data
+results/**/s2_expert_count/token_routing.jsonl
 
 # Python
 __pycache__/

@@ -7,7 +7,10 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
-SRC="${REPO_ROOT}/src/stage2/extract_pattern_agent_balanced.py"
+SRC="${REPO_ROOT}/src/phase2/extract_pattern_agent_balanced.py"
+
+# ── Virtual environment ────────────────────────────────────
+source "/home/work/nota-data/nemo_hackathon/venv/nemotron-3-super/bin/activate"
 
 # ── Configuration ──────────────────────────────────────────
 MODEL_NAME="qwen3_30b_a3b"
@@ -15,11 +18,11 @@ DATASET_ID="nemo_dataset"
 STAGE="0"
 CALIB_SIZE=128
 
-# Input: bracketed samples from Stage 1
-BRACKETED_JSONL="${REPO_ROOT}/results/stage1_routing/${MODEL_NAME}_${DATASET_ID}/D${STAGE}_${CALIB_SIZE}/s6_apply_bracket/bracketed_balance.jsonl"
+# Input: bracketed samples from Phase 1
+BRACKETED_JSONL="/home/work/nota-data/nemo_hackathon/expert_analysis/${MODEL_NAME}_${DATASET_ID}/D${STAGE}_${CALIB_SIZE}/s6_apply_bracket/bracketed_balance.jsonl"
 
 # Output: per-domain guideline markdown files
-OUTPUT_DIR="${REPO_ROOT}/results/stage2_guidelines/instruction"
+OUTPUT_DIR="${REPO_ROOT}/results/phase2_guidelines/instruction"
 
 echo "=========================================="
 echo " Stage 2: Extract Text Patterns"
@@ -29,7 +32,7 @@ echo "=========================================="
 
 if [ ! -f "${BRACKETED_JSONL}" ]; then
     echo "[Error] Input file not found: ${BRACKETED_JSONL}"
-    echo "        Please run Stage 1 first (scripts/run_stage1.sh)"
+    echo "        Please run Stage 1 first (scripts/run_phase1.sh)"
     exit 1
 fi
 
