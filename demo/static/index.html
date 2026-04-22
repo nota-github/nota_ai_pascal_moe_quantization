@@ -638,8 +638,8 @@ function renderPhase1(data) {
       <div style="margin-top:14px;">
         <p style="font-size:11px;color:var(--muted);margin-bottom:6px;">
           Sample analysis  |  domain: <strong>${s.domain || ''}</strong>
-          &nbsp;·&nbsp; <span class="red">■</span> sparse experts: ${s.n_tokens_red ?? '?'}
-          &nbsp;·&nbsp; <span class="blue">■</span> dense experts: ${s.n_tokens_blue ?? '?'}
+          &nbsp;·&nbsp; <span class="red">■</span> scarce experts: ${s.n_tokens_red ?? '?'}
+          &nbsp;·&nbsp; <span class="blue">■</span> frequent experts: ${s.n_tokens_blue ?? '?'}
         </p>
         <div class="bracket-sample">${safeText}</div>
       </div>`;
