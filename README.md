@@ -26,6 +26,14 @@ Stage 3: Generate synthetic calibration dataset achieving balanced activated exp
 
 ---
 
+## Demo Video
+
+You can review the entire execution process of the PASCAL-MoE pipeline here. While live execution is supported, the current video demonstrates the process by loading pre-recorded execution logs and results.
+
+<video src="pascal_moe_run_video.mov" controls width="100%"></video>
+
+---
+
 ## Repository Structure
 
 ```
